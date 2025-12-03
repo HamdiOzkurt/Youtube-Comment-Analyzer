@@ -1,0 +1,6 @@
+selenium
+yt-dlp
+PyQt6
+webdriver-manager
+pandas
+openpyxl
