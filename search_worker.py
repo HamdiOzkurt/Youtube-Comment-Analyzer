@@ -48,12 +48,15 @@ class SearchWorker(QObject):
         print("⏹️  Arama durdurma isteği alındı...")
         self._is_running = False
 
-    def run(self):
+    def run(self, progress_callback=None):
         """Selenium ile YouTube araması yapar"""
         self._is_running = True
         self.found_urls = []
 
-        print(f"🔍 Arama başlatılıyor: '{self.query}' için {self.limit} video aranıyor...")
+        if progress_callback:
+            progress_callback(f"🔍 Arama başlatılıyor: '{self.query}' için {self.limit} video aranıyor...")
+        else:
+            print(f"🔍 Arama başlatılıyor: '{self.query}' için {self.limit} video aranıyor...")
 
         # Chrome ayarları
         options = webdriver.ChromeOptions()
@@ -93,6 +96,8 @@ class SearchWorker(QObject):
                 print(f"🌍 Arama dili: {self.lang}")
                 
             print(f"🌐 URL yükleniyor: {search_url}")
+            if progress_callback:
+                progress_callback(f"🌐 YouTube'a bağlanılıyor...")
             self.driver.get(search_url)
 
             # Sayfa yüklenmesini bekle
@@ -125,6 +130,8 @@ class SearchWorker(QObject):
             MAX_IDLE_SCROLL_ATTEMPTS = 7
 
             print(f"📜 Kaydırma başlıyor... Hedef: {self.limit} URL")
+            if progress_callback:
+                progress_callback(f"📜 Sayfa taranıyor... (0/{self.limit})")
 
             while (len(self.found_urls) < self.limit and 
                    self._is_running and 
@@ -150,6 +157,8 @@ class SearchWorker(QObject):
                                 self.found_urls.append(full_url)
                                 processed_urls.add(full_url)
                                 print(f"   ✓ Bulundu ({len(self.found_urls)}/{self.limit}): {full_url}")
+                                if progress_callback:
+                                    progress_callback(f"🔍 Bulundu: {len(self.found_urls)}/{self.limit} video")
                     except Exception as e:
                         continue
 

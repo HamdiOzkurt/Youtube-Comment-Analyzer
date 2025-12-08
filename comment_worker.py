@@ -87,12 +87,13 @@ class CommentWorker:
             })
             return None
     
-    def fetch_bulk_comments(self, video_urls):
+    def fetch_bulk_comments(self, video_urls, progress_callback=None):
         """
         Birden fazla videodan paralel olarak yorum çeker
         
         Args:
             video_urls: Video URL listesi
+            progress_callback: İlerleme durumunu bildirmek için fonksiyon
             
         Returns:
             list: Başarılı sonuçlar listesi
@@ -122,8 +123,15 @@ class CommentWorker:
                 
                 if result:
                     self.results.append(result)
+                    video_title = result.get('baslik', 'Bilinmiyor')[:30]
+                    msg = f"✅ ({completed}/{total}) Tamamlandı: {video_title}..."
+                else:
+                    msg = f"❌ ({completed}/{total}) Hata oluştu."
                 
                 print(f"📊 İlerleme: {completed}/{total} video tamamlandı")
+                
+                if progress_callback:
+                    progress_callback(msg)
         
         elapsed = time.time() - start_time
         

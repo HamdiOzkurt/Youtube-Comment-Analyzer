@@ -1,0 +1,165 @@
+"""
+Ollama LLM Wrapper - Local AI Model Support
+Gemini yerine local Ollama kullanımı için
+"""
+
+import requests
+from typing import List, Optional
+from dataclasses import dataclass
+
+
+@dataclass
+class OllamaSummaryResult:
+    """Ollama özet sonucu"""
+    summary: str
+    raw_response: str
+
+
+class OllamaLLM:
+    """Local Ollama ile yorum özetleme"""
+    
+    def __init__(self, model_name: str = "gemma3:4b", base_url: str = "http://localhost:11434"):
+        """
+        Args:
+            model_name: Kullanılacak Ollama modeli
+            base_url: Ollama API URL'i
+        """
+        self.model_name = model_name
+        self.base_url = base_url
+        self.api_url = f"{base_url}/api/generate"
+        
+    def _call_ollama(self, prompt: str, max_tokens: int = 1000) -> str:
+        """Ollama API'ye istek gönder"""
+        try:
+            payload = {
+                "model": self.model_name,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "num_predict": max_tokens,
+                    "temperature": 0.7
+                }
+            }
+            
+            response = requests.post(self.api_url, json=payload, timeout=120)
+            response.raise_for_status()
+            
+            result = response.json()
+            return result.get("response", "")
+            
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError(
+                f"Ollama'ya bağlanılamadı! Lütfen Ollama'nın çalıştığından emin olun.\n"
+                f"Başlatmak için: ollama serve\n"
+                f"Model indirmek için: ollama pull {self.model_name}"
+            )
+        except Exception as e:
+            raise Exception(f"Ollama API hatası: {e}")
+    
+    def summarize_comments(self, comments: List[str], video_title: str = "") -> OllamaSummaryResult:
+        """
+        Yorumları özetle
+        
+        Args:
+            comments: Yorum metinleri listesi
+            video_title: Video başlığı (opsiyonel)
+            
+        Returns:
+            OllamaSummaryResult objesi
+        """
+        if not comments:
+            return OllamaSummaryResult(
+                summary="Analiz edilecek yorum bulunamadı.",
+                raw_response=""
+            )
+        
+        # İlk 100 yorumu al (Ollama için)
+        comments_sample = comments[:100]
+        comments_text = "\n".join([f"- {c[:300]}" for c in comments_sample])
+        
+        prompt = f"""Sen bir YouTube video analiz uzmanısın. Aşağıdaki yorumları analiz et ve Türkçe özet çıkar.
+
+{"Video: " + video_title if video_title else ""}
+
+YORUMLAR:
+{comments_text}
+
+GÖREV: Bu yorumları analiz ederek aşağıdaki bilgileri ver:
+
+1. GENEL ÖZET (2-3 cümle): İzleyicilerin genel tepkisi nedir?
+
+2. ANA NOKTALAR (3-5 madde): En çok vurgulanan konular
+
+3. DUYGU: Genel atmosfer (pozitif/negatif/karışık)
+
+4. ÖNERİLER (2-3 madde): İçerik üreticiye öneriler
+
+Kısa ve öz yanıt ver."""
+
+        try:
+            response_text = self._call_ollama(prompt, max_tokens=800)
+            
+            return OllamaSummaryResult(
+                summary=response_text,
+                raw_response=response_text
+            )
+            
+        except Exception as e:
+            print(f"❌ Ollama özet hatası: {e}")
+            return OllamaSummaryResult(
+                summary=f"Hata: {str(e)}",
+                raw_response=""
+            )
+    
+    def check_connection(self) -> bool:
+        """Ollama bağlantısını kontrol et"""
+        try:
+            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
+            return response.status_code == 200
+        except:
+            return False
+    
+    def list_models(self) -> List[str]:
+        """Mevcut modelleri listele"""
+        try:
+            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                return [model["name"] for model in data.get("models", [])]
+            return []
+        except:
+            return []
+
+
+# Test
+if __name__ == '__main__':
+    print("=" * 60)
+    print("🤖 OLLAMA LLM TEST")
+    print("=" * 60)
+    
+    ollama = OllamaLLM(model_name="gemma3:4b")
+    
+    # Bağlantı kontrolü
+    if ollama.check_connection():
+        print("✅ Ollama bağlantısı başarılı!")
+        
+        models = ollama.list_models()
+        print(f"\n📋 Mevcut modeller: {', '.join(models)}")
+        
+        # Test yorumları
+        test_comments = [
+            "Bu video harika olmuş, çok beğendim!",
+            "Açıklamalar net ve anlaşılır",
+            "Devam videoları bekliyoruz",
+            "Ses kalitesi biraz düşük olmuş",
+            "10 numara içerik!"
+        ]
+        
+        print("\n📝 Test özetlemesi...")
+        result = ollama.summarize_comments(test_comments, "Test Video")
+        print(f"\n{result.summary}")
+    else:
+        print("❌ Ollama'ya bağlanılamadı!")
+        print("\nÇözüm:")
+        print("  1. Ollama'yı başlatın: ollama serve")
+        print("  2. Model indirin: ollama pull gemma3:4b")

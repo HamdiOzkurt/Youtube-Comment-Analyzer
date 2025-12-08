@@ -37,7 +37,8 @@ class BulkCommentScraper:
                            max_comments_per_video=None,
                            parallel_workers=3,
                            filter_keywords=None,
-                           lang=None):
+                           lang=None,
+                           progress_callback=None):
         """
         Tam iş akışı: Arama → URL toplama → Yorum çekme → Kaydetme
         
@@ -48,18 +49,16 @@ class BulkCommentScraper:
             parallel_workers: Paralel işlem sayısı
             filter_keywords: Yorumları filtrelemek için kelimeler (list)
             lang: Arama dili (örn: 'en', 'tr')
+            progress_callback: Durum güncellemesi için fonksiyon(msg)
         """
         print("\n" + "="*80)
         print(f"🚀 TOPLU YORUM ÇEKME BAŞLATILDI")
-        print(f"🔍 Arama Kelimesi: '{search_query}'")
-        print(f"🌍 Dil: {lang if lang else 'Varsayılan'}")
-        print(f"📹 Video Limiti: {video_limit}")
-        print(f"💬 Video Başına Yorum: {max_comments_per_video or 'HEPSI'}")
-        print(f"⚙️  Paralel İşlem: {parallel_workers}")
-        print("="*80 + "\n")
+        
+        if progress_callback: progress_callback("🚀 İşlem başlatıldı...")
         
         # ===== 1. ADIM: VIDEO URL'LERİNİ TOPLA (SELENIUM) =====
         print("📡 1. ADIM: Video URL'leri toplanıyor (Selenium)...\n")
+        if progress_callback: progress_callback("📡 Video URL'leri aranıyor (Selenium)...")
         
         # SearchWorker'ı QThread olmadan kullanmak için basit çalıştırma
         # Not: GUI olmadan çalışıyoruz, direkt run() metodunu çağırabiliriz
@@ -70,23 +69,28 @@ class BulkCommentScraper:
         search_worker.search_error.connect(self._on_search_error)
         
         # run() metodunu çağır (blocking)
-        search_worker.run()
+        search_worker.run(progress_callback=progress_callback)
         
         if not self.search_results:
-            print("❌ Hiç video URL'i bulunamadı!")
+            print("Hiç video URL'i bulunamadı!")
             return None
         
         print(f"\n✅ {len(self.search_results)} video URL'i toplandı!\n")
         
         # ===== 2. ADIM: YORUMLARI ÇEK (YT-DLP) =====
+        # ===== 2. ADIM: YORUMLARI ÇEK (YT-DLP) =====
         print("💬 2. ADIM: Yorumlar çekiliyor (yt-dlp)...\n")
+        if progress_callback: progress_callback("💬 Yorumlar çekiliyor (yt-dlp)...")
         
         comment_worker = CommentWorker(
             max_workers=parallel_workers,
             max_comments_per_video=max_comments_per_video
         )
         
-        self.comment_results = comment_worker.fetch_bulk_comments(self.search_results)
+        self.comment_results = comment_worker.fetch_bulk_comments(
+            self.search_results, 
+            progress_callback=progress_callback
+        )
         
         if not self.comment_results:
             print("❌ Hiç yorum çekilemedi!")

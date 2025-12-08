@@ -1,6 +1,16 @@
-selenium
-yt-dlp
-PyQt6
-webdriver-manager
-pandas
-openpyxl
+# YouTube Comment Analyzer 2.0 - Requirements
+# Core
+selenium>=4.15.0
+yt-dlp>=2023.11.0
+python-dotenv>=1.0.0
+
+# Topic Modeling (opsiyonel - büyük boyut)
+# bertopic>=0.15.0
+# sentence-transformers>=2.2.0
+
+# Türkçe NLP (opsiyonel)
+# zeyrek>=0.1.0
+
+# Utilities
+tqdm>=4.66.0
+colorama>=0.4.6

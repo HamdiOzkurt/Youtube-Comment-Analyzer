@@ -168,3 +168,39 @@ if __name__ == '__main__':
     print("\n✅ default_parallel_workers 8'e güncellendi\n")
     
     print(f"Yeni değer: {PROCESSING_CONFIG['default_parallel_workers']}")
+
+
+# ============= AI AYARLARI =============
+AI_CONFIG = {
+    # Gemini API
+    'gemini_model': 'gemini-2.0-flash-exp',
+    'gemini_max_tokens': 2048,
+    'gemini_temperature': 0.7,
+    
+    # BERT Sentiment
+    'bert_model': 'savasy/bert-base-turkish-sentiment-cased',
+    'bert_batch_size': 32,
+    'bert_max_length': 512,
+    
+    # BERTopic
+    'bertopic_min_topic_size': 5,
+    'bertopic_nr_topics': None,  # Otomatik
+}
+
+
+# ============= DASHBOARD AYARLARI =============
+DASHBOARD_CONFIG = {
+    # Tema
+    'theme': 'dark',
+    'primary_color': '#667eea',
+    'secondary_color': '#764ba2',
+    
+    # Sayfa ayarları
+    'default_max_comments': 100,
+    'show_raw_comments': True,
+    'show_wordcloud': True,
+    
+    # Görselleştirme
+    'chart_height': 400,
+    'wordcloud_max_words': 100,
+}
