@@ -11,6 +11,8 @@ import os
 import sys
 import requests
 import plotly.graph_objects as go
+import plotly.express as px
+from sklearn.feature_extraction.text import CountVectorizer
 
 # Sayfa yapılandırması
 st.set_page_config(
@@ -51,28 +53,30 @@ except ImportError as e:
 
 
 # ============= THEME CONFIGURATION =============
-THEMES = {
-    "professional_dark": {
-        "bg_color": "#0F172A",  # Slate 900
-        "main_bg": "#0F172A",
-        "sidebar_bg": "#1E293B", # Slate 800
-        "card_bg": "rgba(30, 41, 59, 0.7)", # Transparent Slate 800
-        "text_primary": "#F8FAFC", # Slate 50
-        "text_secondary": "#94A3B8", # Slate 400
-        "accent": "#3B82F6", # Blue 500
-        "accent_hover": "#2563EB", # Blue 600
-        "success": "#10B981", # Emerald 500
-        "error": "#EF4444", # Red 500
-        "warning": "#F59E0B", # Amber 500
-        "border": "rgba(148, 163, 184, 0.1)"
-    }
+THEME = {
+    "bg_color": "#0F172A",  # Slate 900
+    "main_bg": "#0F172A",
+    "sidebar_bg": "#1E293B", # Slate 800
+    "card_bg": "rgba(30, 41, 59, 0.7)", # Transparent Slate 800
+    "card_bg_solid": "#1E293B",
+    "text_primary": "#F8FAFC", # Slate 50
+    "text_secondary": "#94A3B8", # Slate 400
+    "text_muted": "#64748B", # Slate 500
+    "accent": "#3B82F6", # Blue 500
+    "accent_secondary": "#8B5CF6", # Purple 500
+    "accent_hover": "#2563EB", # Blue 600
+    "success": "#10B981", # Emerald 500
+    "error": "#EF4444", # Red 500
+    "warning": "#F59E0B", # Amber 500
+    "border": "rgba(148, 163, 184, 0.1)",
+    "input_bg": "rgba(30, 41, 59, 0.5)",
+    "hover_bg": "rgba(59, 130, 246, 0.1)"
 }
 
-CURRENT_THEME = "professional_dark"
 
 def inject_theme():
     """Professional UI Theme Injection"""
-    t = THEMES[CURRENT_THEME]
+    t = THEME
     
     st.markdown(f"""
     <style>
@@ -223,6 +227,20 @@ def inject_theme():
         footer {{visibility: hidden;}}
         header {{visibility: hidden;}}
         
+        /* Remove top padding/margin from main content */
+        .block-container {{
+            padding-top: 1rem !important;
+        }}
+        
+        [data-testid="stHeader"] {{
+            display: none !important;
+        }}
+        
+        /* SIDEBAR TOGGLE - Keep visible */
+        [data-testid="collapsedControl"] {{
+            display: flex !important;
+        }}
+        
     </style>
     """, unsafe_allow_html=True)
 
@@ -256,108 +274,146 @@ def init_session_state():
 def page_home():
     """Professional Home Dashboard"""
     
-    st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
-    
-    # Hero Section
+    # ============ HERO SECTION ============
     st.markdown("""
-    <div style='text-align: center; margin-bottom: 60px;'>
-        <h1 style='font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; 
-                   background: linear-gradient(to right, #F8FAFC, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
-            Insight Analytics
+    <div style='text-align: center; padding: 40px 0 50px 0;'>
+        <div style='margin-bottom: 16px;'>
+            <span style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; color: white; font-weight: 500;'>
+                AI-Powered Analytics
+            </span>
+        </div>
+        <h1 style='font-size: 3rem; font-weight: 800; margin: 0 0 16px 0; 
+                   background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%); 
+                   -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+            YouTube Comment Analyzer
         </h1>
-        <p style='font-size: 1.25rem; color: #94A3B8; max_width: 600px; margin: 0 auto;'>
-            Advanced YouTube comment analysis powered by AI. 
-            Extract sentiments, compare videos, and gain actionable insights.
+        <p style='font-size: 1.1rem; color: #64748B; max-width: 500px; margin: 0 auto; line-height: 1.6;'>
+            Extract sentiment insights, discover trends, and understand your audience with local AI processing.
         </p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Selection Components
-    col1, col2 = st.columns(2, gap="large")
-    
-    with col1:
-        st.markdown("""
-        <div class="glass-card" style="border-top: 4px solid #3B82F6;">
-            <div style="font-size: 1.25rem; font-weight: 700; color: #F8FAFC; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
-                <span>🔍</span> Single Source Analysis
-            </div>
-            <div style="font-size: 0.95rem; color: #94A3B8; margin-bottom: 1.5rem; line-height: 1.6;">
-                Analyze individual video performance in depth.
-                <ul style="margin-top: 12px; padding-left: 20px; color: #CBD5E1; font-size: 0.9rem;">
-                    <li>Sentiment Breakdown</li>
-                    <li>Keyword Extraction</li>
-                    <li>Timeline Trends</li>
-                </ul>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("START SINGLE ANALYSIS", type="primary", use_container_width=True, key="btn_single"):
-            st.session_state.page = 'analyze'
-            st.session_state.analysis_mode_index = 0
-            st.rerun()
-            
-    with col2:
-        st.markdown("""
-        <div class="glass-card" style="border-top: 4px solid #8B5CF6;">
-            <div style="font-size: 1.25rem; font-weight: 700; color: #F8FAFC; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
-                <span>🚀</span> Competitive Intelligence
-            </div>
-            <div style="font-size: 0.95rem; color: #94A3B8; margin-bottom: 1.5rem; line-height: 1.6;">
-                Batch process multiple videos via search.
-                <ul style="margin-top: 12px; padding-left: 20px; color: #CBD5E1; font-size: 0.9rem;">
-                    <li>Batch Scraping</li>
-                    <li>Cross-Video Comparison</li>
-                    <li>Market Trend Analysis</li>
-                </ul>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("START BATCH / SEARCH", type="secondary", use_container_width=True, key="btn_multi"):
-            st.session_state.page = 'analyze'
-            st.session_state.analysis_mode_index = 1
-            st.rerun()
-
-    # Footer Metrics (Minimalist)
-    st.markdown("<div style='height: 60px'></div>", unsafe_allow_html=True)
+    # ============ FEATURE BADGES ============
     st.markdown("""
-    <div style='display: flex; justify-content: center; gap: 32px; color: #64748B; font-size: 0.85rem; padding-top: 24px; border-top: 1px solid rgba(148, 163, 184, 0.1); margin-top: auto;'>
-        <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="height: 6px; width: 6px; background-color: #10B981; border-radius: 50%;"></span>
-            Model: <b style="color: #94A3B8;">Gemma-4b</b>
+    <div style='display: flex; justify-content: center; gap: 24px; margin-bottom: 48px; flex-wrap: wrap;'>
+        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
+            <span style='color: #10B981; font-size: 1.1rem;'>●</span> Local Processing
         </div>
-        <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="height: 6px; width: 6px; background-color: #10B981; border-radius: 50%;"></span>
-            Device: <b style="color: #94A3B8;">Local GPU</b>
+        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
+            <span style='color: #3B82F6; font-size: 1.1rem;'>●</span> GPU Accelerated
         </div>
-        <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="height: 6px; width: 6px; background-color: #10B981; border-radius: 50%;"></span>
-            Engine: <b style="color: #94A3B8;">Ollama</b>
+        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
+            <span style='color: #8B5CF6; font-size: 1.1rem;'>●</span> No API Keys
+        </div>
+        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
+            <span style='color: #F59E0B; font-size: 1.1rem;'>●</span> Privacy First
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    m1, m2, m3, m4 = st.columns(4)
-    with m1:
-        st.metric("Model", "Gemma-4b", delta="Active", delta_color="normal")
-    with m2:
-        st.metric("Processing", "CUDA Core", delta="Enabled", delta_color="normal")
-    with m3:
-        st.metric("Engine", "Ollama", delta="Local", delta_color="normal")
-    with m4:
-        st.metric("Status", "Operational", delta="Ready", delta_color="normal")
+    # ============ MAIN ACTION CARDS ============
+    col1, col2 = st.columns(2, gap="large")
+    
+    with col1:
+        st.markdown("""
+        <div class="glass-card" style="border-left: 4px solid #3B82F6; min-height: 200px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <div style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <span style="color: white; font-weight: 700; font-size: 1.2rem;">S</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #F8FAFC;">Single Video</div>
+                    <div style="font-size: 0.8rem; color: #64748B;">Deep dive analysis</div>
+                </div>
+            </div>
+            <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;">
+                Analyze comments from a single YouTube video. Get sentiment distribution, keyword extraction, and AI-generated insights.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("ANALYZE VIDEO", type="primary", use_container_width=True, key="btn_single"):
+            st.session_state.page = 'analyze'
+            st.session_state.analysis_mode = "Single Video"
+            st.rerun()
+            
+    with col2:
+        st.markdown("""
+        <div class="glass-card" style="border-left: 4px solid #8B5CF6; min-height: 200px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <div style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <span style="color: white; font-weight: 700; font-size: 1.2rem;">B</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #F8FAFC;">Batch Search</div>
+                    <div style="font-size: 0.8rem; color: #64748B;">Multi-video comparison</div>
+                </div>
+            </div>
+            <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;">
+                Search YouTube and analyze multiple videos at once. Compare sentiment across competitors and discover market trends.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("BATCH SEARCH", type="secondary", use_container_width=True, key="btn_multi"):
+            st.session_state.page = 'analyze'
+            st.session_state.analysis_mode = "Multi-Video Batch"
+            st.rerun()
+    
+    # ============ QUICK START GUIDE ============
+    st.markdown("<div style='height: 48px'></div>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 24px;'>
+        <span style='font-size: 0.85rem; color: #64748B; text-transform: uppercase; letter-spacing: 1px;'>How It Works</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    c1, c2, c3 = st.columns(3)
+    
+    with c1:
+        st.markdown("""
+        <div style='text-align: center; padding: 20px;'>
+            <div style='background: rgba(59, 130, 246, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;'>
+                <span style='color: #3B82F6; font-weight: 700; font-size: 1.2rem;'>1</span>
+            </div>
+            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 4px;'>Paste URL</div>
+            <div style='font-size: 0.85rem; color: #64748B;'>Enter any YouTube video link</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with c2:
+        st.markdown("""
+        <div style='text-align: center; padding: 20px;'>
+            <div style='background: rgba(139, 92, 246, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;'>
+                <span style='color: #8B5CF6; font-weight: 700; font-size: 1.2rem;'>2</span>
+            </div>
+            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 4px;'>Process</div>
+            <div style='font-size: 0.85rem; color: #64748B;'>AI analyzes comments locally</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with c3:
+        st.markdown("""
+        <div style='text-align: center; padding: 20px;'>
+            <div style='background: rgba(16, 185, 129, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;'>
+                <span style='color: #10B981; font-weight: 700; font-size: 1.2rem;'>3</span>
+            </div>
+            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 4px;'>Insights</div>
+            <div style='font-size: 0.85rem; color: #64748B;'>View charts, trends & reports</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
 
 
 def page_analyze():
     """Professional Analysis Page"""
     
     st.markdown("""
-    <div style='display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;'>
-        <h2 style='margin: 0; font-size: 1.5rem; color: #F8FAFC;'>Analysis Console</h2>
-        <span style='background: rgba(59, 130, 246, 0.1); color: #60A5FA; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;'>
-            v2.1
-        </span>
+    <div style='margin-bottom: 28px;'>
+        <h2 style='font-size: 1.8rem; margin: 0; color: #F8FAFC;'>Analysis Console</h2>
+        <p style='color: #64748B; font-size: 0.9rem; margin-top: 4px;'>Extract insights from YouTube video comments</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -365,21 +421,23 @@ def page_analyze():
     if 'analysis_mode' not in st.session_state:
         st.session_state.analysis_mode = "Single Video"
     
-    # Mode selection and Main Controls in one clean block
-    c_mode, c_input = st.columns([1, 3], gap="medium")
+    # --- STEP 1: Mode Selection ---
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 12px;'>
+        <span style='background: #3B82F6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>1</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Select Mode</span>
+    </div>
+    """, unsafe_allow_html=True)
     
-    with c_mode:
-        st.markdown("<label style='font-size: 0.85rem; color: #94A3B8; margin-bottom: 4px; display: block;'>Operation Mode</label>", unsafe_allow_html=True)
-        mode = st.radio(
-            "Analysis Mode", 
-            ["Single Video", "Multi-Video Batch"], 
-            horizontal=False,
-            label_visibility="collapsed",
-            key="analysis_mode"
-        )
+    mode = st.radio(
+        "Analysis Mode", 
+        ["Single Video", "Multi-Video Batch"], 
+        horizontal=True,
+        label_visibility="collapsed",
+        key="analysis_mode"
+    )
     
-    # Divider aligned
-    st.markdown("<hr style='margin: 1.5rem 0; border-color: rgba(148, 163, 184, 0.1);'>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
     
     if mode == "Single Video":
         analyze_single_video()
@@ -388,37 +446,37 @@ def page_analyze():
 
 
 def analyze_single_video():
-    # Modern Form Layout
+    # --- STEP 2: Input Configuration ---
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 12px;'>
+        <span style='background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Input Configuration</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
     with st.container():
-        col1, col2, col3 = st.columns([5, 2, 2], gap="medium")
+        col1, col2 = st.columns([4, 1], gap="medium")
         
         with col1:
             url = st.text_input(
                 "Video URL", 
                 value=st.session_state.get('current_video_url', ''), 
                 placeholder="https://youtube.com/watch?v=...",
-                help="Paste the full YouTube video URL here"
+                label_visibility="collapsed"
             )
         
         with col2:
             count = st.number_input(
-                "Sample Limit", 
+                "Limit", 
                 min_value=10, 
                 max_value=10000, 
                 value=500, 
                 step=50,
-                help="Maximum number of comments to fetch"
+                label_visibility="collapsed"
             )
-        
-        with col3:
-            # Align button with inputs (approximate height adjustment)
-            st.markdown("<div style='height: 29px'></div>", unsafe_allow_html=True)
-            analyze_clicked = st.button(
-                "START ANALYSIS", 
-                type="primary", 
-                use_container_width=True, 
-                key="single_analyze_btn"
-            )
+    
+    st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
+    analyze_clicked = st.button("START ANALYSIS", type="primary", use_container_width=True, key="single_analyze_btn")
     
     # Handle analysis in a separate block
     if analyze_clicked and url:
@@ -753,7 +811,7 @@ def display_tabs(comments, sentiment_results, title_context):
             """, unsafe_allow_html=True)
 
     with tabs[3]:
-        st.subheader("Keyword Frequency")
+     
         texts = [c.get('metin', '') for c in comments]
         freqs = get_word_frequencies_from_texts(texts)
         if freqs:
@@ -781,18 +839,45 @@ def display_tabs(comments, sentiment_results, title_context):
                         st.error("Ollama connection failed.")
                     else:
                         sample = [c.get('metin', '') for c in comments[:100]]
-                        res = ollama.summarize_comments(sample, title_context)
+                        
+                        # Calculate sentiment distribution for summary context
+                        sentiment_dist = None
+                        if sentiment_results:
+                            analyzer = SentimentAnalyzer()
+                            dist = analyzer.get_sentiment_distribution(sentiment_results)
+                            total = dist.get('positive', 0) + dist.get('negative', 0) + dist.get('neutral', 0)
+                            if total > 0:
+                                sentiment_dist = {
+                                    'positive': int(dist.get('positive', 0) / total * 100),
+                                    'negative': int(dist.get('negative', 0) / total * 100),
+                                    'neutral': int(dist.get('neutral', 0) / total * 100)
+                                }
+                        
+                        res = ollama.summarize_comments(sample, title_context, sentiment_distribution=sentiment_dist)
                         st.session_state[summary_key] = res.summary
                 except Exception as e:
                     st.error(f"Error: {e}")
         
+        
         # Display if exists
         if st.session_state[summary_key]:
-            st.markdown(f"""
-            <div class="glass-card" style="border: 1px solid #10B981;">
-                {st.session_state[summary_key]}
-            </div>
-            """, unsafe_allow_html=True)
+            # Use container with custom CSS
+            with st.container():
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); 
+                            border-left: 4px solid #10B981; 
+                            border-radius: 8px; 
+                            padding: 20px; 
+                            margin: 16px 0;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="font-size: 1.2rem;">📝</span>
+                        <span style="font-size: 1.1rem; font-weight: 600; color: #10B981;">AI Generated Summary</span>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown(st.session_state[summary_key])
+                
+                st.markdown("</div>", unsafe_allow_html=True)
             
             if st.button("Clear Summary", key="btn_clr_summary"):
                 st.session_state[summary_key] = None
@@ -800,45 +885,73 @@ def display_tabs(comments, sentiment_results, title_context):
 
 
 def page_battle():
-    st.title("Competitive Battle Mode")
+    # Clean header
+    st.markdown("""
+    <div style='margin-bottom: 32px;'>
+        <h2 style='font-size: 1.8rem; margin: 0; color: #F8FAFC;'>Competitive Battle</h2>
+        <p style='color: #64748B; font-size: 0.9rem; margin-top: 4px;'>Compare two videos using AI-powered evaluation</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # --- Video URL Girişleri ---
-    st.markdown("### Source Configuration")
+    # --- STEP 1: Video URL Inputs ---
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 12px;'>
+        <span style='background: #3B82F6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>1</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Source Configuration</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
     c1, c2 = st.columns(2)
-    u1 = c1.text_input("Competitor A (URL)", key="battle_url1", placeholder="https://youtube.com/watch?v=...")
-    u2 = c2.text_input("Competitor B (URL)", key="battle_url2", placeholder="https://youtube.com/watch?v=...")
+    u1 = c1.text_input("Competitor A", key="battle_url1", placeholder="https://youtube.com/watch?v=...")
+    u2 = c2.text_input("Competitor B", key="battle_url2", placeholder="https://youtube.com/watch?v=...")
     
-    # --- Kategori Tanımlama ---
-    st.markdown("### Evaluation Criteria")
+    st.markdown("<div style='height: 24px'></div>", unsafe_allow_html=True)
+    
+    # --- STEP 2: Evaluation Criteria ---
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 8px;'>
+        <span style='background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Evaluation Criteria</span>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption("Define categories to classify and compare comments")
 
     if 'battle_categories' not in st.session_state:
         st.session_state.battle_categories = [{"name": "", "desc": ""}]
     
-    categories_to_remove = []
-    for i, cat in enumerate(st.session_state.battle_categories):
-        col1, col2, col3 = st.columns([2, 5, 1])
-        with col1:
-            cat['name'] = st.text_input(f"Category", value=cat['name'], key=f"cat_name_{i}", placeholder="e.g. Positive Feedback")
-        with col2:
-            cat['desc'] = st.text_input(f"Description / Rules", value=cat['desc'], key=f"cat_desc_{i}", placeholder="What counts as this category?")
-        with col3:
-            st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
-            if st.button("x", key=f"remove_cat_{i}"):
-                categories_to_remove.append(i)
+    # Use expander for category details to reduce visual clutter
+    with st.expander("Manage Criteria", expanded=len(st.session_state.battle_categories) <= 2):
+        categories_to_remove = []
+        for i, cat in enumerate(st.session_state.battle_categories):
+            col1, col2, col3 = st.columns([2, 5, 1])
+            with col1:
+                cat['name'] = st.text_input(f"Category #{i+1}", value=cat['name'], key=f"cat_name_{i}", placeholder="e.g. Features")
+            with col2:
+                cat['desc'] = st.text_input(f"Criteria", value=cat['desc'], key=f"cat_desc_{i}", placeholder="Brief description")
+            with col3:
+                st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
+                if st.button("✕", key=f"remove_cat_{i}"):
+                    categories_to_remove.append(i)
+        
+        for idx in sorted(categories_to_remove, reverse=True):
+            st.session_state.battle_categories.pop(idx)
+            st.rerun()
+        
+        if st.button("+ Add Criterion"):
+            st.session_state.battle_categories.append({"name": "", "desc": ""})
+            st.rerun()
     
-    for idx in sorted(categories_to_remove, reverse=True):
-        st.session_state.battle_categories.pop(idx)
-        st.rerun()
+    st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
     
-    if st.button("+ Add Category"):
-        st.session_state.battle_categories.append({"name": "", "desc": ""})
-        st.rerun()
+    # Compact controls
+    col_depth, col_btn = st.columns([2, 3])
+    with col_depth:
+        max_comments = st.number_input("Sample Size", min_value=10, max_value=500, value=50, step=10, help="Comments per video")
+    with col_btn:
+        st.markdown("<div style='height: 29px'></div>", unsafe_allow_html=True)
+        start_battle = st.button("START BATTLE", type="primary", use_container_width=True)
     
-    st.markdown("---")
-    
-    max_comments = st.number_input("Analysis Depth (Comments per Video)", min_value=10, max_value=10000, value=50, step=10)
-    
-    if st.button("INITIATE BATTLE COMPARISON", type="primary", use_container_width=True):
+    if start_battle:
         if u1 and u2:
             valid_categories = {c['name']: c['desc'] for c in st.session_state.battle_categories if c['name'] and c['desc']}
             
@@ -968,7 +1081,7 @@ def page_battle():
 
 
 def page_stats():
-    st.title("📈 İstatistikler")
+    st.title("📈 İleri Düzey Metin Madenciliği")
     
     # Check for any data
     has_single = st.session_state.single_video_data is not None
@@ -1000,113 +1113,475 @@ def page_stats():
         sentiment = st.session_state.single_video_sentiment
         title_text = data.get('baslik', 'Tek Video')[:40]
     
-    st.subheader(f"📊 {title_text}")
-    st.divider()
+    st.markdown(f"""
+    <div style='margin-bottom: 24px;'>
+        <h2 style='font-size: 1.6rem; margin: 0; color: #F8FAFC;'>{title_text}</h2>
+        <p style='color: #64748B; font-size: 0.85rem; margin-top: 4px;'>Toplam {len(all_comments)} yorum analiz ediliyor</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # --- GENEL METRİKLER ---
-    st.markdown("### 📌 Genel Metrikler")
-    c1, c2, c3, c4 = st.columns(4)
+    import numpy as np
+    import re
+    from collections import Counter
     
-    total_comments = len(all_comments)
-    total_likes = sum(c.get('begeni', 0) for c in all_comments)
-    avg_likes = total_likes / total_comments if total_comments > 0 else 0
+    texts = [c.get('metin', '') for c in all_comments]
+    comment_lengths = [len(t) for t in texts]
+    likes = [c.get('begeni', 0) for c in all_comments]
     
-    c1.metric("Toplam Yorum", f"{total_comments:,}")
-    c2.metric("Toplam Beğeni", f"{total_likes:,}")
-    c3.metric("Ortalama Beğeni/Yorum", f"{avg_likes:.1f}")
+    # === GENEL METRİKLER ===
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 10px; margin: 16px 0 12px 0;'>
+        <span style='background: #3B82F6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>📊</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Genel Metrikler</span>
+    </div>
+    """, unsafe_allow_html=True)
     
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Toplam Yorum", f"{len(all_comments):,}")
+    m2.metric("Toplam Beğeni", f"{sum(likes):,}")
+    m3.metric("Ort. Uzunluk", f"{np.mean(comment_lengths):.0f} char")
     if sentiment:
         stats = SentimentAnalyzer().get_summary_stats(sentiment)
-        c4.metric("Duygu Skoru", f"{stats['sentiment_score']:.2f}")
+        m4.metric("Duygu Skoru", f"{stats['sentiment_score']:.2f}")
     else:
-        c4.metric("Duygu Skoru", "N/A")
+        m4.metric("Duygu Skoru", "N/A")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # --- DUYGU DAĞILIMI ---
-    st.markdown("### 🎭 Duygu Dağılımı")
-    if sentiment:
-        stats = SentimentAnalyzer().get_summary_stats(sentiment)
-        col1, col2 = st.columns([1, 1])
+    # ========== 1. Bİ-GRAM ANALİZİ ==========
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
+        <span style='background: linear-gradient(135deg, #EC4899, #F59E0B); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>1️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #EC4899, #F59E0B); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Bi-Gram Analizi (İkili Kelime Öbekleri)</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.caption("Yorumlarda yan yana en çok kullanılan kelime çiftleri")
+    
+    try:
+        # Clean texts for vectorization
+        cleaned_texts = [t.lower() for t in texts if len(t) > 10]
         
-        # Tabs for Pie vs Bubble chart
-        tab_pie, tab_bubble = st.tabs(["🥧 Pasta Grafiği", "🫧 Balon Grafiği"])
-        
-        with tab_pie:
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                fig = create_sentiment_pie_chart(
-                    stats.get('positive_count', 0),
-                    stats.get('negative_count', 0),
-                    stats.get('neutral_count', 0)
-                )
-                st.plotly_chart(fig, use_container_width=True)
+        if cleaned_texts:
+            vectorizer = CountVectorizer(ngram_range=(2, 2), max_features=15, stop_words=None)
+            bigram_matrix = vectorizer.fit_transform(cleaned_texts)
+            bigram_counts = bigram_matrix.sum(axis=0).A1
+            bigram_names = vectorizer.get_feature_names_out()
             
-            with col2:
-                st.markdown("#### Detaylar")
-                total = stats.get('total_analyzed', 1)
-                pos_pct = (stats.get('positive_count', 0) / total * 100) if total > 0 else 0
-                neg_pct = (stats.get('negative_count', 0) / total * 100) if total > 0 else 0
-                neu_pct = (stats.get('neutral_count', 0) / total * 100) if total > 0 else 0
+            # Sort by frequency
+            sorted_indices = np.argsort(bigram_counts)[::-1]
+            top_bigrams = [(bigram_names[i], bigram_counts[i]) for i in sorted_indices[:12]]
+            
+            if top_bigrams:
+                bigrams = [b[0] for b in top_bigrams]
+                counts = [b[1] for b in top_bigrams]
                 
-                st.markdown(f"- **Pozitif:** {stats.get('positive_count', 0)} yorum ({pos_pct:.1f}%)")
-                st.markdown(f"- **Negatif:** {stats.get('negative_count', 0)} yorum ({neg_pct:.1f}%)")
-                if 'neutral_count' in stats:
-                    st.markdown(f"- **Nötr:** {stats.get('neutral_count', 0)} yorum ({neu_pct:.1f}%)")
-                st.markdown(f"- **Ortalama Güven:** {stats.get('average_confidence', 0):.2f}")
+                # Plasma gradient colors
+                colors = px.colors.sequential.Plasma[:len(bigrams)]
+                
+                fig = go.Figure()
+                fig.add_trace(go.Bar(
+                    y=bigrams[::-1],
+                    x=counts[::-1],
+                    orientation='h',
+                    marker=dict(
+                        color=colors[::-1],
+                        line=dict(width=1, color='rgba(255,255,255,0.5)')
+                    ),
+                    text=[f" {c}" for c in counts[::-1]],
+                    textposition='outside',
+                    textfont=dict(size=11, color='#E2E8F0'),
+                    hovertemplate='<b>%{y}</b><br>Kullanım: %{x}<extra></extra>'
+                ))
+                
+                fig.update_layout(
+                    xaxis_title="Kullanım Sayısı",
+                    yaxis_title="",
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='#E2E8F0', size=12),
+                    height=420,
+                    margin=dict(l=20, r=60, t=10, b=40),
+                    hoverlabel=dict(bgcolor="#1E293B", bordercolor="#EC4899")
+                )
+                fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
+                fig.update_yaxes(showgrid=False)
+                
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("Yeterli bi-gram verisi yok.")
+        else:
+            st.info("Yeterli metin verisi yok.")
+    except Exception as e:
+        st.warning(f"Bi-gram analizi yapılamadı: {e}")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # ========== 2. ETKİLEŞİM MATRİSİ (Bubble Chart) ==========
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
+        <span style='background: linear-gradient(135deg, #10B981, #06B6D4); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>2️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #10B981, #06B6D4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Etkileşim Matrisi (Duygu × Beğeni × Uzunluk)</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.caption("Baloncuk boyutu = yorum uzunluğu, X = duygu skoru, Y = beğeni sayısı")
+    
+    if sentiment and len(all_comments) > 0:
+        bubble_data = []
+        for i, c in enumerate(all_comments):
+            if i < len(sentiment):
+                sent = sentiment[i]
+                # Convert sentiment to score (-1 to 1)
+                if sent.label == 'positive':
+                    score = sent.score
+                elif sent.label == 'negative':
+                    score = -sent.score
+                else:
+                    score = 0
+                
+                bubble_data.append({
+                    'sentiment_score': score,
+                    'likes': c.get('begeni', 0),
+                    'length': len(c.get('metin', '')),
+                    'label': sent.label.capitalize(),
+                    'author': c.get('yazar', 'Anonim')[:20],
+                    'text': c.get('metin', '')[:80]
+                })
         
-        with tab_bubble:
-            fig = create_sentiment_bubble_chart(
-                stats.get('positive_count', 0),
-                stats.get('negative_count', 0),
-                stats.get('neutral_count', 0)
+        if bubble_data:
+            import pandas as pd
+            df_bubble = pd.DataFrame(bubble_data)
+            
+            # Color mapping
+            color_map = {'Positive': '#10B981', 'Neutral': '#3B82F6', 'Negative': '#EF4444'}
+            
+            fig = go.Figure()
+            
+            for label in ['Positive', 'Neutral', 'Negative']:
+                df_subset = df_bubble[df_bubble['label'] == label]
+                if len(df_subset) > 0:
+                    fig.add_trace(go.Scatter(
+                        x=df_subset['sentiment_score'],
+                        y=df_subset['likes'],
+                        mode='markers',
+                        name=f"{'🟢' if label == 'Positive' else '🔵' if label == 'Neutral' else '🔴'} {label}",
+                        marker=dict(
+                            size=np.clip(df_subset['length'] / 10, 8, 50),
+                            color=color_map[label],
+                            opacity=0.7,
+                            line=dict(width=1, color='rgba(255,255,255,0.5)')
+                        ),
+                        customdata=df_subset[['author', 'text', 'length']].values,
+                        hovertemplate='<b>👤 %{customdata[0]}</b><br>' +
+                                      'Duygu Skoru: %{x:.2f}<br>' +
+                                      'Beğeni: %{y}<br>' +
+                                      'Uzunluk: %{customdata[2]} char<br>' +
+                                      '<i>%{customdata[1]}...</i><extra></extra>'
+                    ))
+            
+            fig.update_layout(
+                xaxis_title="Duygu Skoru (-1 = Negatif, +1 = Pozitif)",
+                yaxis_title="Beğeni Sayısı",
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#E2E8F0', size=12),
+                height=450,
+                legend=dict(
+                    orientation="h", yanchor="bottom", y=1.02,
+                    xanchor="center", x=0.5, bgcolor='rgba(0,0,0,0)'
+                ),
+                margin=dict(l=20, r=20, t=50, b=40),
+                hoverlabel=dict(bgcolor="#1E293B", bordercolor="#64748B")
             )
+            fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=True, zerolinecolor='rgba(255,255,255,0.2)')
+            fig.update_yaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
+            
             st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("Duygu analizi verisi yok.")
+        st.warning("Duygu analizi verisi gerekli. Önce bir video analiz edin.")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # --- VIDEO BAZLI DAĞILIM (Çoklu video için) ---
-    if use_multi and len(videos) > 1:
-        st.markdown("### 📹 Video Bazlı Yorum Dağılımı")
-        video_data = {v.get('baslik', f'Video {i}')[:25]: len(v.get('yorumlar', [])) for i, v in enumerate(videos)}
+    # ========== 3. EN ETKİLİ YORUMCULAR ==========
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
+        <span style='background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>3️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6366F1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>En Etkili Yorumcular</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.caption("En çok beğeni alan yorumcular ve etkileşim metrikleri")
+    
+    # Aggregate author stats
+    author_stats = {}
+    for c in all_comments:
+        author = c.get('yazar', 'Anonim')
+        likes = c.get('begeni', 0)
+        length = len(c.get('metin', ''))
         
-        fig = create_keyword_bar_chart(video_data, top_n=len(video_data))
+        if author not in author_stats:
+            author_stats[author] = {'total_likes': 0, 'comment_count': 0, 'total_length': 0}
+        
+        author_stats[author]['total_likes'] += likes
+        author_stats[author]['comment_count'] += 1
+        author_stats[author]['total_length'] += length
+    
+    # Sort by total likes
+    sorted_authors = sorted(author_stats.items(), key=lambda x: x[1]['total_likes'], reverse=True)[:10]
+    
+    if sorted_authors:
+        col_chart, col_table = st.columns([1.5, 1])
+        
+        with col_chart:
+            authors = [a[0][:15] + '...' if len(a[0]) > 15 else a[0] for a in sorted_authors]
+            total_likes = [a[1]['total_likes'] for a in sorted_authors]
+            
+            # Sunset gradient colors
+            colors = px.colors.sequential.Sunset[:len(authors)]
+            if len(colors) < len(authors):
+                colors = px.colors.sequential.Sunset * 2
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                y=authors[::-1],
+                x=total_likes[::-1],
+                orientation='h',
+                marker=dict(
+                    color=colors[:len(authors)][::-1],
+                    line=dict(width=1, color='rgba(255,255,255,0.5)')
+                ),
+                text=[f" {l:,}" for l in total_likes[::-1]],
+                textposition='outside',
+                textfont=dict(size=11, color='#E2E8F0'),
+                hovertemplate='<b>%{y}</b><br>Toplam Beğeni: %{x:,}<extra></extra>'
+            ))
+            
+            fig.update_layout(
+                xaxis_title="Toplam Beğeni",
+                yaxis_title="",
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#E2E8F0', size=12),
+                height=380,
+                margin=dict(l=20, r=60, t=10, b=40),
+                hoverlabel=dict(bgcolor="#1E293B", bordercolor="#8B5CF6")
+            )
+            fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
+            fig.update_yaxes(showgrid=False)
+            
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col_table:
+            st.markdown("**📊 Detaylı Metrikler**")
+            
+            # Top 5 with detailed metrics
+            for i, (author, stats) in enumerate(sorted_authors[:5], 1):
+                avg_likes = stats['total_likes'] / stats['comment_count'] if stats['comment_count'] > 0 else 0
+                avg_length = stats['total_length'] / stats['comment_count'] if stats['comment_count'] > 0 else 0
+                
+                medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"#{i}"
+                
+                st.markdown(f"""
+                <div style='background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); 
+                            padding: 10px 12px; border-radius: 8px; margin-bottom: 8px;'>
+                    <div style='display: flex; justify-content: space-between; align-items: center;'>
+                        <span style='color: #C4B5FD; font-weight: 600;'>{medal} {author[:18]}</span>
+                        <span style='color: #A78BFA; font-size: 0.85rem;'>❤️ {stats['total_likes']:,}</span>
+                    </div>
+                    <div style='color: #94A3B8; font-size: 0.7rem; margin-top: 4px;'>
+                        {stats['comment_count']} yorum • Ort: {avg_likes:.1f} beğeni • {avg_length:.0f} char
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.info("Yeterli yazar verisi yok.")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    # ========== 4. SORU ANALİZİ (Donut Chart) ==========
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
+        <span style='background: linear-gradient(135deg, #F59E0B, #EF4444); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>4️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #F59E0B, #EF4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Soru Analizi</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.caption("Soru işareti veya soru kalıbı içeren yorumların oranı")
+    
+    question_patterns = ['?', 'nasıl', 'neden', 'ne zaman', 'nerede', 'kim', 'hangi', 'kaç', 'mi ', 'mı ', 'mu ', 'mü ']
+    
+    question_count = 0
+    for c in all_comments:
+        text_lower = c.get('metin', '').lower()
+        if any(pattern in text_lower for pattern in question_patterns):
+            question_count += 1
+    
+    non_question_count = len(all_comments) - question_count
+    
+    col_donut, col_stats = st.columns([1.5, 1])
+    
+    with col_donut:
+        fig = go.Figure(go.Pie(
+            labels=['❓ Soru İçeren', '💬 Normal Yorum'],
+            values=[question_count, non_question_count],
+            hole=0.6,
+            marker=dict(
+                colors=['#F59E0B', '#3B82F6'],
+                line=dict(width=2, color='#0F172A')
+            ),
+            textinfo='percent+label',
+            textposition='outside',
+            textfont=dict(size=13, color='#E2E8F0'),
+            hovertemplate='<b>%{label}</b><br>Sayı: %{value}<br>Oran: %{percent}<extra></extra>'
+        ))
+        
+        fig.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            showlegend=False,
+            height=350,
+            margin=dict(l=20, r=20, t=20, b=20),
+            annotations=[dict(
+                text=f"<b>{question_count}</b><br><span style='font-size:12px'>Soru</span>",
+                x=0.5, y=0.5, font_size=24, font_color='#F59E0B', showarrow=False
+            )]
+        )
+        
         st.plotly_chart(fig, use_container_width=True)
     
-    # --- EN POPÜLER YORUMLAR ---
-    st.markdown("### ⭐ En Çok Beğenilen Yorumlar")
-    sorted_comments = sorted(all_comments, key=lambda x: x.get('begeni', 0), reverse=True)[:5]
-    
-    for i, c in enumerate(sorted_comments, 1):
-        with st.expander(f"**#{i}** - {c.get('begeni', 0)} beğeni | {c.get('yazar', 'Anonim')}"):
-            st.write(c.get('metin', ''))
-            if '_video_title' in c:
-                st.caption(f"📺 {c['_video_title']}")
+    with col_stats:
+        question_pct = (question_count / len(all_comments) * 100) if len(all_comments) > 0 else 0
+        
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); 
+                    border: 1px solid rgba(245, 158, 11, 0.3); padding: 24px; border-radius: 12px; margin-top: 20px;'>
+            <div style='color: #94A3B8; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;'>Soru Oranı</div>
+            <div style='color: #FBBF24; font-size: 2.8rem; font-weight: 800; line-height: 1;'>{question_pct:.1f}%</div>
+            <div style='color: #64748B; font-size: 0.8rem; margin-top: 12px;'>
+                {question_count} soru / {len(all_comments)} yorum
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Insight
+        if question_pct > 30:
+            insight = "⚠️ Kitle çok soru soruyor! Daha fazla açıklama veya FAQ gerekebilir."
+            insight_color = "#F59E0B"
+        elif question_pct > 15:
+            insight = "💡 Orta düzeyde soru var. İçeriğiniz anlaşılır görünüyor."
+            insight_color = "#3B82F6"
+        else:
+            insight = "✅ Çok az soru var. İçeriğiniz açık ve net!"
+            insight_color = "#10B981"
+        
+        st.markdown(f"""
+        <div style='background: rgba(30, 41, 59, 0.5); border-left: 3px solid {insight_color}; 
+                    padding: 12px 16px; margin-top: 16px; border-radius: 6px;'>
+            <span style='color: #E2E8F0; font-size: 0.85rem;'>{insight}</span>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # --- KELİME FREKANSLARI ---
-    st.markdown("### 🔤 En Sık Kullanılan Kelimeler")
-    texts = [c.get('metin', '') for c in all_comments]
-    freqs = get_word_frequencies_from_texts(texts, top_n=20)
+    # ========== 5. EN ÇOK KULLANILAN EMOJİLER ==========
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
+        <span style='background: linear-gradient(135deg, #06B6D4, #3B82F6); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>5️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #06B6D4, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>TF-IDF Anahtar Kelime Analizi</span>
+    </div>
+    """, unsafe_allow_html=True)
     
-    if freqs:
-        fig = create_keyword_bar_chart(freqs, top_n=15)
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Yeterli kelime verisi yok.")
-
-
-
-
-
-def page_settings():
-    st.title("Ayarlar")
-    st.markdown("### AI Model Yapılandırması")
-    st.success("✅ **Ollama (gemma3:4b)** aktif.")
-    st.info("Model değiştirmek için `ollama pull <model_adi>` kullanın ve kodu güncelleyin.")
+    st.caption("En ayırt edici ve önemli kelimeler (sadece sık kullanılan değil, gerçekten anlamlı olanlar)")
+    
+    try:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        import nltk
+        from nltk.corpus import stopwords
+        
+        # Download Turkish stopwords if not already downloaded
+        try:
+            turkish_stopwords = list(stopwords.words('turkish'))
+        except LookupError:
+            nltk.download('stopwords', quiet=True)
+            turkish_stopwords = list(stopwords.words('turkish'))
+        
+        # Clean texts
+        cleaned_texts = [t.lower().strip() for t in texts if len(t) > 20]
+        
+        if len(cleaned_texts) > 5:
+            # TF-IDF Vectorizer with Turkish stopwords
+            tfidf = TfidfVectorizer(
+                max_features=30,
+                ngram_range=(1, 1),
+                min_df=2,
+                max_df=0.7,
+                stop_words=turkish_stopwords,
+                token_pattern=r'(?u)\b[a-zA-ZçğıöşüÇĞİÖŞÜ]{3,}\b'  # At least 3 chars, Turkish letters
+            )
+            tfidf_matrix = tfidf.fit_transform(cleaned_texts)
+            
+            # Get feature names and their average TF-IDF scores
+            feature_names = tfidf.get_feature_names_out()
+            avg_scores = tfidf_matrix.mean(axis=0).A1
+            
+            # Sort by score
+            sorted_indices = np.argsort(avg_scores)[::-1]
+            top_words = [(feature_names[i], avg_scores[i]) for i in sorted_indices[:15]]
+            
+            if top_words:
+                words = [w[0] for w in top_words]
+                scores = [w[1] for w in top_words]
+                
+                # Viridis gradient
+                colors = px.colors.sequential.Viridis[:len(words)]
+                if len(colors) < len(words):
+                    colors = px.colors.sequential.Viridis * 2
+                
+                fig = go.Figure()
+                fig.add_trace(go.Bar(
+                    y=words[::-1],
+                    x=scores[::-1],
+                    orientation='h',
+                    marker=dict(
+                        color=colors[:len(words)][::-1],
+                        line=dict(width=1, color='rgba(255,255,255,0.5)')
+                    ),
+                    text=[f" {s:.4f}" for s in scores[::-1]],
+                    textposition='outside',
+                    textfont=dict(size=11, color='#E2E8F0'),
+                    hovertemplate='<b>%{y}</b><br>TF-IDF Skoru: %{x:.4f}<extra></extra>'
+                ))
+                
+                fig.update_layout(
+                    xaxis_title="TF-IDF Skoru (Yüksek = Daha Önemli)",
+                    yaxis_title="",
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='#E2E8F0', size=12),
+                    height=420,
+                    margin=dict(l=20, r=80, t=10, b=40),
+                    hoverlabel=dict(bgcolor="#1E293B", bordercolor="#06B6D4")
+                )
+                fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
+                fig.update_yaxes(showgrid=False)
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Insight
+                st.markdown(f"""
+                <div style='background: rgba(30, 41, 59, 0.5); border-left: 3px solid #06B6D4; 
+                            padding: 12px 16px; margin-top: 8px; border-radius: 6px;'>
+                    <span style='color: #E2E8F0; font-size: 0.85rem;'>
+                        💡 <b>TF-IDF</b> (Term Frequency-Inverse Document Frequency), bir kelimenin hem sıklığını hem de "benzersizliğini" ölçer. 
+                        Yüksek skorlu kelimeler, bu yorumlarda özellikle öne çıkan ve anlamlı terimlerdir.
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("Yeterli TF-IDF verisi hesaplanamadı.")
+        else:
+            st.info("TF-IDF analizi için en az 5 yorum gerekli.")
+    except Exception as e:
+        st.warning(f"TF-IDF analizi yapılamadı: {e}")
 
 
 # ============= MAIN =============
@@ -1115,26 +1590,43 @@ def main():
     init_session_state()
     
     with st.sidebar:
-        st.title("YCA Studio")
+        # Header
+        st.markdown("""
+        <div style='text-align: center; padding: 20px 0 10px 0;'>
+            <h2 style='font-size: 1.5rem; margin: 0; background: linear-gradient(135deg, #3B82F6, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                YCA Studio
+            </h2>
+            <p style='font-size: 0.75rem; color: #64748B; margin-top: 4px;'>Insight Analytics Platform</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 10px'></div>", unsafe_allow_html=True)
         
-        if st.button("Ana Sayfa", use_container_width=True): st.session_state.page = 'home'; st.rerun()
-        if st.button("Video Analiz", use_container_width=True): st.session_state.page = 'analyze'; st.rerun()
-        if st.button("Battle Mode", use_container_width=True): st.session_state.page = 'battle'; st.rerun()
-        if st.button("İstatistikler", use_container_width=True): st.session_state.page = 'stats'; st.rerun()
-        if st.button("Ayarlar", use_container_width=True): st.session_state.page = 'settings'; st.rerun()
+        # Clean navigation without emojis
+        pages = [
+            ("Home", "home"),
+            ("Analysis", "analyze"),
+            ("Battle", "battle"),
+            ("Statistics", "stats")
+        ]
         
+        for name, key in pages:
+            is_active = st.session_state.page == key
+            btn_type = "primary" if is_active else "secondary"
+            
+            if st.button(name, use_container_width=True, type=btn_type, key=f"nav_{key}"):
+                st.session_state.page = key
+                st.rerun()
+        
+        # Footer
         st.markdown("<div style='flex-grow: 1'></div>", unsafe_allow_html=True)
         st.divider()
-        st.caption("Powered by **Ollama**")
-        st.caption("Model: gemma3:4b")
+        
 
     if st.session_state.page == 'home': page_home()
     elif st.session_state.page == 'analyze': page_analyze()
     elif st.session_state.page == 'battle': page_battle()
     elif st.session_state.page == 'stats': page_stats()
-    elif st.session_state.page == 'settings': page_settings()
 
 if __name__ == "__main__":
     main()

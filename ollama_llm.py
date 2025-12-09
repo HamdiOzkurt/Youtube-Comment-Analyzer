@@ -56,13 +56,20 @@ class OllamaLLM:
         except Exception as e:
             raise Exception(f"Ollama API hatası: {e}")
     
-    def summarize_comments(self, comments: List[str], video_title: str = "") -> OllamaSummaryResult:
+    def summarize_comments(
+        self, 
+        comments: List[str], 
+        video_title: str = "",
+        sentiment_distribution: Optional[dict] = None
+    ) -> OllamaSummaryResult:
         """
         Yorumları özetle
         
         Args:
             comments: Yorum metinleri listesi
             video_title: Video başlığı (opsiyonel)
+            sentiment_distribution: Sentiment analizi sonuçları (opsiyonel)
+                Örnek: {"positive": 26, "negative": 74, "neutral": 0}
             
         Returns:
             OllamaSummaryResult objesi
@@ -77,24 +84,41 @@ class OllamaLLM:
         comments_sample = comments[:100]
         comments_text = "\n".join([f"- {c[:300]}" for c in comments_sample])
         
+        # Sentiment bilgisini prompt'a ekle
+        sentiment_context = ""
+        if sentiment_distribution:
+            pos = sentiment_distribution.get('positive', 0)
+            neg = sentiment_distribution.get('negative', 0)
+            neu = sentiment_distribution.get('neutral', 0)
+            
+            # Dominant sentiment'i belirle
+            if neg > pos and neg > neu:
+                dominant = f"ÇOĞUNLUKLA NEGATİF (Negatif: %{neg}, Pozitif: %{pos}, Nötr: %{neu})"
+            elif pos > neg and pos > neu:
+                dominant = f"ÇOĞUNLUKLA POZİTİF (Pozitif: %{pos}, Negatif: %{neg}, Nötr: %{neu})"
+            else:
+                dominant = f"KARIŞIK (Pozitif: %{pos}, Negatif: %{neg}, Nötr: %{neu})"
+            
+            sentiment_context = f"\n⚠️ SENTIMENT ANALİZ SONUCU: {dominant}\n"
+        
         prompt = f"""Sen bir YouTube video analiz uzmanısın. Aşağıdaki yorumları analiz et ve Türkçe özet çıkar.
 
 {"Video: " + video_title if video_title else ""}
-
+{sentiment_context}
 YORUMLAR:
 {comments_text}
 
 GÖREV: Bu yorumları analiz ederek aşağıdaki bilgileri ver:
 
-1. GENEL ÖZET (2-3 cümle): İzleyicilerin genel tepkisi nedir?
+1. GENEL ÖZET (2-3 cümle): İzleyicilerin genel tepkisi nedir? (Sentiment analizi sonucuna dikkat et!)
 
 2. ANA NOKTALAR (3-5 madde): En çok vurgulanan konular
 
-3. DUYGU: Genel atmosfer (pozitif/negatif/karışık)
+3. DUYGU ANALİZİ: Genel atmosfer - Yukarıdaki sentiment dağılımını doğrula
 
 4. ÖNERİLER (2-3 madde): İçerik üreticiye öneriler
 
-Kısa ve öz yanıt ver."""
+Kısa ve öz yanıt ver. Sentiment analizi sonucuyla uyumlu bir özet yaz!"""
 
         try:
             response_text = self._call_ollama(prompt, max_tokens=800)
