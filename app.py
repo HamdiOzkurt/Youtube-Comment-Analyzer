@@ -42,9 +42,13 @@ try:
         create_category_radar_chart,
         create_winner_summary_chart,
         create_category_heatmap,
-        create_sentiment_bubble_chart
+        create_sentiment_bubble_chart,
+        create_battle_trend_chart,
+        create_temporal_sentiment_chart,
+        create_category_pie_grid,
+        create_category_temporal_chart
     )
-    from components.wordcloud_gen import generate_wordcloud, get_word_frequencies_from_texts
+    from components.wordcloud_gen import generate_wordcloud, get_word_frequencies_from_texts, generate_sentiment_wordcloud
     from components.progress_bar import ProgressBar, create_battle_progress_callback
     from battle_analyzer import BattleAnalyzer
 except ImportError as e:
@@ -90,10 +94,63 @@ def inject_theme():
             color: {t["text_primary"]};
         }}
         
-        /* SIDEBAR */
+        /* MAIN CONTAINER - Centered with flex for vertical alignment */
+        .block-container {{
+            padding-top: 3rem !important;
+            padding-bottom: 3rem !important;
+            max-width: 1100px !important;
+            margin: 0 auto !important;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 100px);
+        }}
+        
+        /* SIDEBAR - Improved spacing */
         [data-testid="stSidebar"] {{
             background-color: {t["sidebar_bg"]};
             border-right: 1px solid {t["border"]};
+            padding-top: 1rem;
+        }}
+        
+        /* Sidebar buttons - More spacing between items */
+        [data-testid="stSidebar"] .stButton {{
+            margin-bottom: 8px !important;
+        }}
+        
+        [data-testid="stSidebar"] .stButton > button {{
+            background: transparent !important;
+            border: none !important;
+            border-radius: 10px !important;
+            color: {t["text_secondary"]} !important;
+            text-transform: none !important;
+            font-weight: 500 !important;
+            letter-spacing: 0 !important;
+            padding: 14px 18px !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+            margin-bottom: 4px !important;
+        }}
+        
+        [data-testid="stSidebar"] .stButton > button:hover {{
+            background: rgba(59, 130, 246, 0.1) !important;
+            color: {t["accent"]} !important;
+            border-left: 4px solid {t["accent"]} !important;
+            padding-left: 14px !important;
+        }}
+        
+        /* Active sidebar button - Rounded corners matching sidebar */
+        [data-testid="stSidebar"] .stButton > button[kind="primary"] {{
+            background: rgba(59, 130, 246, 0.15) !important;
+            color: {t["accent"]} !important;
+            border-left: 4px solid {t["accent"]} !important;
+            border-radius: 10px !important;
+        }}
+        
+        /* Remove sidebar dividers */
+        [data-testid="stSidebar"] hr {{
+            display: none !important;
         }}
         
         /* TYPOGRAPHY */
@@ -109,10 +166,15 @@ def inject_theme():
 
         .small-text {{
             font-size: 0.875rem;
-            color: {t["text_secondary"]};
+            color: #CBD5E1;
         }}
         
-        /* CARDS & CONTAINERS */
+        /* Captions/hints - better contrast */
+        .stCaption, [data-testid="stCaption"] {{
+            color: #CBD5E1 !important;
+        }}
+        
+        /* CARDS & CONTAINERS - Max width for home cards */
         .glass-card {{
             background: {t["card_bg"]};
             backdrop-filter: blur(12px);
@@ -120,117 +182,249 @@ def inject_theme():
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         .glass-card:hover {{
             border-color: {t["accent"]};
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
         }}
         
-        /* BUTTONS */
+        /* Home page cards container limit */
+        .home-cards-container {{
+            max-width: 900px;
+            margin: 0 auto;
+        }}
+        
+        /* FORM CONTAINER - Centered card */
+        .form-container {{
+            max-width: 800px;
+            margin: 0 auto;
+            background: {t["card_bg"]};
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid {t["border"]};
+        }}
+        
+        /* BUTTONS - Main */
         .stButton > button {{
             background: linear-gradient(135deg, {t["accent"]} 0%, {t["accent_hover"]} 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
+            border-radius: 10px;
+            padding: 0.875rem 1.5rem;
+            font-weight: 600;
             letter-spacing: 0.02em;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-transform: uppercase;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
-            width: 100%;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.3);
+            max-width: 600px;
+            height: 48px;
         }}
         
         .stButton > button:hover:not(:disabled) {{
             filter: brightness(1.1);
-            box-shadow: 0 8px 15px -3px rgba(59, 130, 246, 0.4);
-            transform: translateY(-1px);
+            box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }}
+        
+        .stButton > button:active:not(:disabled) {{
+            transform: translateY(0);
+        }}
+        
+        .stButton > button:disabled {{
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }}
 
+        /* Secondary/Outlined buttons */
         [data-testid="baseButton-secondary"] {{
             background: transparent !important;
-            border: 1px solid {t["border"]} !important;
-            color: {t["text_secondary"]} !important;
+            border: 2px solid {t["accent"]} !important;
+            color: {t["accent"]} !important;
+            box-shadow: none !important;
         }}
 
         [data-testid="baseButton-secondary"]:hover {{
-            background: rgba(255,255,255,0.05) !important;
+            background: rgba(59, 130, 246, 0.1) !important;
             border-color: {t["accent"]} !important;
-            color: {t["accent"]} !important;
+            transform: translateY(-2px) !important;
         }}
         
-        /* INPUTS */
+        /* DELETE/CLOSE BUTTONS - Red theme */
+        .delete-btn button, 
+        button[data-testid*="delete"],
+        button:has(svg[data-testid*="close"]) {{
+            background: transparent !important;
+            border: 1px solid {t["error"]} !important;
+            color: {t["error"]} !important;
+            box-shadow: none !important;
+        }}
+        
+        .delete-btn button:hover {{
+            background: rgba(239, 68, 68, 0.1) !important;
+        }}
+        
+        /* INPUTS - Fixed height */
         .stTextInput > div > div > input,
         .stNumberInput > div > div > input {{
-            background-color: rgba(15, 23, 42, 0.6);
+            background-color: #1E293B;
             border: 1px solid {t["border"]};
-            border-radius: 8px;
+            border-radius: 10px;
             color: {t["text_primary"]};
-            padding: 10px 12px;
+            padding: 0 16px;
+            font-size: 1rem;
             transition: all 0.2s;
+            height: 48px !important;
+            min-height: 48px !important;
+        }}
+        
+        .stTextInput > div > div > input::placeholder {{
+            color: #94A3B8;
+            opacity: 0.9;
         }}
         
         .stTextInput > div > div > input:focus,
         .stNumberInput > div > div > input:focus {{
             border-color: {t["accent"]};
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            outline: none;
+            background-color: #1E293B;
+        }}
+        
+        /* Number input container fix */
+        .stNumberInput > div {{
+            height: 48px !important;
+        }}
+        
+        /* RADIO BUTTONS - Segmented Control style */
+        .stRadio > div {{
+            display: inline-flex;
+            gap: 0;
+            background: #1E293B;
+            border-radius: 10px;
+            padding: 4px;
+            border: 1px solid {t["border"]};
+            max-width: 400px;
+        }}
+        
+        .stRadio > div > label {{
+            flex: 1;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: {t["text_secondary"]};
+            margin: 0 !important;
+            white-space: nowrap;
+        }}
+        
+        .stRadio > div > label:hover {{
+            background: rgba(59, 130, 246, 0.1);
+            color: {t["accent"]};
+        }}
+        
+        .stRadio > div > label[data-checked="true"],
+        .stRadio > div input:checked + div {{
+            background: linear-gradient(135deg, {t["accent"]}, {t["accent_hover"]});
+            color: white !important;
+            box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
+        }}
+        
+        /* Hide radio button circles */
+        .stRadio > div > label > div:first-child {{
+            display: none !important;
         }}
         
         /* METRICS */
         [data-testid="stMetricValue"] {{
-            font-size: 2rem !important;
+            font-size: 2.25rem !important;
             font-weight: 700 !important;
-            background: linear-gradient(to right, {t["accent"]}, #60A5FA);
+            background: linear-gradient(135deg, {t["accent"]}, #60A5FA);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }}
         
         [data-testid="stMetricLabel"] {{
-            font-size: 0.875rem !important;
+            font-size: 0.8rem !important;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: {t["text_secondary"]} !important;
+            letter-spacing: 0.08em;
+            color: #CBD5E1 !important;
         }}
         
         /* TABS */
         .stTabs [data-baseweb="tab-list"] {{
-            gap: 24px;
+            gap: 8px;
             border-bottom: 1px solid {t["border"]};
             padding-bottom: 0px;
+            background: transparent;
         }}
         
         .stTabs [data-baseweb="tab"] {{
-            height: 50px;
+            height: 48px;
             white-space: nowrap;
             background-color: transparent;
             border: none;
+            border-radius: 8px 8px 0 0;
             color: {t["text_secondary"]};
             font-weight: 500;
+            padding: 0 20px;
+            transition: all 0.2s ease;
+        }}
+        
+        .stTabs [data-baseweb="tab"]:hover {{
+            background: rgba(59, 130, 246, 0.1);
+            color: {t["accent"]};
         }}
         
         .stTabs [aria-selected="true"] {{
-            color: {t["accent"]};
-            border-bottom: 2px solid {t["accent"]};
+            color: {t["accent"]} !important;
+            border-bottom: 3px solid {t["accent"]} !important;
+            background: rgba(59, 130, 246, 0.1);
+        }}
+        
+        /* EXPANDERS */
+        .streamlit-expanderHeader {{
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            border: 1px solid {t["border"]};
+            transition: all 0.2s ease;
+        }}
+        
+        .streamlit-expanderHeader:hover {{
+            border-color: {t["accent"]};
+            background: rgba(59, 130, 246, 0.1);
         }}
         
         /* PROGRESS BAR */
         .stProgress > div > div > div > div {{
             background-image: linear-gradient(to right, {t["accent"]}, #60A5FA);
+            border-radius: 10px;
+        }}
+        
+        /* SPINNER */
+        .stSpinner > div {{
+            border-color: {t["accent"]} transparent transparent transparent !important;
+        }}
+
+        /* DATAFRAMES */
+        [data-testid="stDataFrame"] {{
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid {t["border"]};
         }}
 
         /* HIDE DEFAULT ELEMENTS */
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
         header {{visibility: hidden;}}
-        
-        /* Remove top padding/margin from main content */
-        .block-container {{
-            padding-top: 1rem !important;
-        }}
         
         [data-testid="stHeader"] {{
             display: none !important;
@@ -239,6 +433,41 @@ def inject_theme():
         /* SIDEBAR TOGGLE - Keep visible */
         [data-testid="collapsedControl"] {{
             display: flex !important;
+        }}
+        
+        /* TIP BOX - Empty state filler */
+        .tip-box {{
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }}
+        
+        .tip-box h4 {{
+            color: {t["accent"]} !important;
+            margin-bottom: 12px;
+        }}
+        
+        /* FEATURE CARDS */
+        .feature-card {{
+            background: {t["card_bg"]};
+            border: 1px solid {t["border"]};
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }}
+        
+        .feature-card:hover {{
+            transform: translateY(-5px);
+            border-color: {t["accent"]};
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.3);
+        }}
+        
+        .feature-icon {{
+            font-size: 2.5rem;
+            margin-bottom: 12px;
         }}
         
     </style>
@@ -295,18 +524,22 @@ def page_home():
     
     # ============ FEATURE BADGES ============
     st.markdown("""
-    <div style='display: flex; justify-content: center; gap: 24px; margin-bottom: 48px; flex-wrap: wrap;'>
-        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
-            <span style='color: #10B981; font-size: 1.1rem;'>●</span> Local Processing
+    <div style='display: flex; justify-content: center; gap: 16px; margin-bottom: 48px; flex-wrap: wrap;'>
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #10B981; font-size: 1rem;'>✓</span>
+            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>Yerel İşleme</span>
         </div>
-        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
-            <span style='color: #3B82F6; font-size: 1.1rem;'>●</span> GPU Accelerated
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #3B82F6; font-size: 1rem;'>⚡</span>
+            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>GPU Hızlandırma</span>
         </div>
-        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
-            <span style='color: #8B5CF6; font-size: 1.1rem;'>●</span> No API Keys
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #8B5CF6; font-size: 1rem;'>🔑</span>
+            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>API Gerektirmez</span>
         </div>
-        <div style='display: flex; align-items: center; gap: 8px; color: #64748B; font-size: 0.85rem;'>
-            <span style='color: #F59E0B; font-size: 1.1rem;'>●</span> Privacy First
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #F59E0B; font-size: 1rem;'>🔒</span>
+            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>Gizlilik Öncelikli</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -318,21 +551,23 @@ def page_home():
         st.markdown("""
         <div class="glass-card" style="border-left: 4px solid #3B82F6; min-height: 200px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <div style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                    <span style="color: white; font-weight: 700; font-size: 1.2rem;">S</span>
+                <div style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
                 </div>
                 <div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #F8FAFC;">Single Video</div>
-                    <div style="font-size: 0.8rem; color: #64748B;">Deep dive analysis</div>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC;">Tekil Video</div>
+                    <div style="font-size: 0.8rem; color: #94A3B8;">Derinlemesine analiz</div>
                 </div>
             </div>
-            <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;">
-                Analyze comments from a single YouTube video. Get sentiment distribution, keyword extraction, and AI-generated insights.
+            <p style="color: #CBD5E1; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
+                Tek bir YouTube videosunun yorumlarını analiz edin. Duygu dağılımı, anahtar kelime çıkarımı ve AI destekli içgörüler alın.
             </p>
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("ANALYZE VIDEO", type="primary", use_container_width=True, key="btn_single"):
+        if st.button("VİDEO ANALİZ ET", type="primary", use_container_width=True, key="btn_single"):
             st.session_state.page = 'analyze'
             st.session_state.analysis_mode = "Single Video"
             st.rerun()
@@ -341,21 +576,26 @@ def page_home():
         st.markdown("""
         <div class="glass-card" style="border-left: 4px solid #8B5CF6; min-height: 200px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <div style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                    <span style="color: white; font-weight: 700; font-size: 1.2rem;">B</span>
+                <div style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
                 </div>
                 <div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #F8FAFC;">Batch Search</div>
-                    <div style="font-size: 0.8rem; color: #64748B;">Multi-video comparison</div>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC;">Toplu Arama</div>
+                    <div style="font-size: 0.8rem; color: #94A3B8;">Çoklu video karşılaştırma</div>
                 </div>
             </div>
-            <p style="color: #94A3B8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;">
-                Search YouTube and analyze multiple videos at once. Compare sentiment across competitors and discover market trends.
+            <p style="color: #CBD5E1; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
+                YouTube'da arama yapın ve birden fazla videoyu aynı anda analiz edin. Rakiplerin duygu durumlarını karşılaştırın.
             </p>
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("BATCH SEARCH", type="secondary", use_container_width=True, key="btn_multi"):
+        if st.button("TOPLU ARAMA", type="secondary", use_container_width=True, key="btn_multi"):
             st.session_state.page = 'analyze'
             st.session_state.analysis_mode = "Multi-Video Batch"
             st.rerun()
@@ -365,7 +605,7 @@ def page_home():
     
     st.markdown("""
     <div style='text-align: center; margin-bottom: 24px;'>
-        <span style='font-size: 0.85rem; color: #64748B; text-transform: uppercase; letter-spacing: 1px;'>How It Works</span>
+        <span style='font-size: 0.85rem; color: #94A3B8; text-transform: uppercase; letter-spacing: 2px;'>Nasıl Çalışır?</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -374,33 +614,33 @@ def page_home():
     with c1:
         st.markdown("""
         <div style='text-align: center; padding: 20px;'>
-            <div style='background: rgba(59, 130, 246, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;'>
-                <span style='color: #3B82F6; font-weight: 700; font-size: 1.2rem;'>1</span>
+            <div style='background: rgba(59, 130, 246, 0.15); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(59, 130, 246, 0.3);'>
+                <span style='color: #60A5FA; font-weight: 700; font-size: 1.4rem;'>1</span>
             </div>
-            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 4px;'>Paste URL</div>
-            <div style='font-size: 0.85rem; color: #64748B;'>Enter any YouTube video link</div>
+            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 8px; font-size: 1rem;'>URL Yapıştır</div>
+            <div style='font-size: 0.9rem; color: #CBD5E1; line-height: 1.5;'>Herhangi bir YouTube video linkini girin</div>
         </div>
         """, unsafe_allow_html=True)
     
     with c2:
         st.markdown("""
         <div style='text-align: center; padding: 20px;'>
-            <div style='background: rgba(139, 92, 246, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;'>
-                <span style='color: #8B5CF6; font-weight: 700; font-size: 1.2rem;'>2</span>
+            <div style='background: rgba(139, 92, 246, 0.15); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(139, 92, 246, 0.3);'>
+                <span style='color: #A78BFA; font-weight: 700; font-size: 1.4rem;'>2</span>
             </div>
-            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 4px;'>Process</div>
-            <div style='font-size: 0.85rem; color: #64748B;'>AI analyzes comments locally</div>
+            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 8px; font-size: 1rem;'>İşle</div>
+            <div style='font-size: 0.9rem; color: #CBD5E1; line-height: 1.5;'>AI yorumları yerel olarak analiz eder</div>
         </div>
         """, unsafe_allow_html=True)
     
     with c3:
         st.markdown("""
         <div style='text-align: center; padding: 20px;'>
-            <div style='background: rgba(16, 185, 129, 0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;'>
-                <span style='color: #10B981; font-weight: 700; font-size: 1.2rem;'>3</span>
+            <div style='background: rgba(16, 185, 129, 0.15); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(16, 185, 129, 0.3);'>
+                <span style='color: #34D399; font-weight: 700; font-size: 1.4rem;'>3</span>
             </div>
-            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 4px;'>Insights</div>
-            <div style='font-size: 0.85rem; color: #64748B;'>View charts, trends & reports</div>
+            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 8px; font-size: 1rem;'>İçgörüler</div>
+            <div style='font-size: 0.9rem; color: #CBD5E1; line-height: 1.5;'>Grafikler, trendler ve raporları görün</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -509,7 +749,7 @@ def run_single_analysis(url, count):
             st.session_state.single_video_sentiment = None
             
             # Phase 3: Sentiment Analysis (20-95%) - per-comment progress
-            comments = [c['metin'] for c in results['yorumlar']]
+            comments = [c.get('metin_duygu') or c.get('metin', '') for c in results['yorumlar']]
             analyzer = SentimentAnalyzer()
             
             # Analyze with progress callback
@@ -606,7 +846,7 @@ def run_multi_analysis(query, count, per_vid, keywords_str):
             progress_bar.update(0.6, f"Analyzing sentiment ({len(all_comments)} comments)...")
             status_container.info(f"Running sentiment analysis on {len(all_comments)} comments...")
             
-            comment_texts = [c['metin'] for c in all_comments]
+            comment_texts = [c.get('metin_duygu') or c.get('metin', '') for c in all_comments]
             
             # Analyze with per-comment progress
             analyzer = SentimentAnalyzer()
@@ -713,10 +953,15 @@ def display_tabs(comments, sentiment_results, title_context):
         if sentiment_results:
             c1, c2 = st.columns(2)
             dist = SentimentAnalyzer().get_sentiment_distribution(sentiment_results)
-            c1.plotly_chart(create_sentiment_pie_chart(dist['positive'], dist['negative'], dist['neutral']), use_container_width=True)
             
-            stats = SentimentAnalyzer().get_summary_stats(sentiment_results)
-            c2.plotly_chart(create_engagement_gauge(stats['sentiment_score']), use_container_width=True)
+            with c1:
+                st.markdown("**Duygu Dağılımı**")
+                st.plotly_chart(create_sentiment_pie_chart(dist['positive'], dist['negative'], dist['neutral']), use_container_width=True)
+            
+            with c2:
+                stats = SentimentAnalyzer().get_summary_stats(sentiment_results)
+                st.markdown("**Duygu Endeksi**")
+                st.plotly_chart(create_engagement_gauge(stats['sentiment_score']), use_container_width=True)
         else:
             st.info("No sentiment data available.")
 
@@ -973,8 +1218,8 @@ def page_battle():
                     st.error("Could not fetch data.")
                     return
                 
-                v1_comments = [c['metin'] for c in v1_data.get('yorumlar', [])]
-                v2_comments = [c['metin'] for c in v2_data.get('yorumlar', [])]
+                v1_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v1_data.get('yorumlar', [])]
+                v2_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v2_data.get('yorumlar', [])]
                 
                 status_container.info("Running AI Classification...")
                 progress_bar = ProgressBar(progress_container)
@@ -1025,39 +1270,211 @@ def page_battle():
         c1.metric(v1.get('baslik', 'Video 1')[:25], f"{result.video1_total_comments} comments")
         c2.metric(v2.get('baslik', 'Video 2')[:25], f"{result.video2_total_comments} comments")
         
+        # ========== CLASSIFICATION SUMMARY TABLE ==========
+        st.markdown("### 📊 Sınıflandırma Özet Tablosu")
+        st.caption("Her kategori için kaç yorum 1 (uygun) veya 0 (uygun değil) olarak sınıflandırıldı")
+        
+        if result.v1_classifications and result.v2_classifications:
+            # Get category names from first classification (excluding 'yorum' field)
+            categories = [k for k in result.v1_classifications[0].keys() if k != 'yorum']
+            
+            if categories:
+                # Build summary data
+                summary_data = []
+                for cat in categories:
+                    v1_ones = sum(1 for c in result.v1_classifications if c.get(cat, 0) == 1)
+                    v1_zeros = sum(1 for c in result.v1_classifications if c.get(cat, 0) == 0)
+                    v2_ones = sum(1 for c in result.v2_classifications if c.get(cat, 0) == 1)
+                    v2_zeros = sum(1 for c in result.v2_classifications if c.get(cat, 0) == 0)
+                    
+                    summary_data.append({
+                        'Kategori': cat,
+                        'V1 ✓ (1)': v1_ones,
+                        'V1 ✗ (0)': v1_zeros,
+                        'V1 %': f"{v1_ones/(v1_ones+v1_zeros)*100:.1f}%" if (v1_ones+v1_zeros) > 0 else "0%",
+                        'V2 ✓ (1)': v2_ones,
+                        'V2 ✗ (0)': v2_zeros,
+                        'V2 %': f"{v2_ones/(v2_ones+v2_zeros)*100:.1f}%" if (v2_ones+v2_zeros) > 0 else "0%"
+                    })
+                
+                df_summary = pd.DataFrame(summary_data)
+                
+                # Style the dataframe
+                st.dataframe(
+                    df_summary,
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={
+                        'Kategori': st.column_config.TextColumn('Kategori', width='medium'),
+                        'V1 ✓ (1)': st.column_config.NumberColumn('V1 ✓', help=f'{v1.get("baslik", "Video 1")[:20]} - Uygun'),
+                        'V1 ✗ (0)': st.column_config.NumberColumn('V1 ✗', help=f'{v1.get("baslik", "Video 1")[:20]} - Uygun Değil'),
+                        'V1 %': st.column_config.TextColumn('V1 %', width='small'),
+                        'V2 ✓ (1)': st.column_config.NumberColumn('V2 ✓', help=f'{v2.get("baslik", "Video 2")[:20]} - Uygun'),
+                        'V2 ✗ (0)': st.column_config.NumberColumn('V2 ✗', help=f'{v2.get("baslik", "Video 2")[:20]} - Uygun Değil'),
+                        'V2 %': st.column_config.TextColumn('V2 %', width='small'),
+                    }
+                )
+                
+                st.markdown(f"""
+                <div style='display: flex; gap: 20px; margin-top: 8px;'>
+                    <span style='color: #3B82F6; font-size: 0.85rem;'>🔵 V1 = {v1.get('baslik', 'Video 1')[:30]}</span>
+                    <span style='color: #8B5CF6; font-size: 0.85rem;'>🟣 V2 = {v2.get('baslik', 'Video 2')[:30]}</span>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Sample size warning
+        min_comments = min(result.video1_total_comments, result.video2_total_comments)
+        if min_comments < 10:
+            st.warning(f"⚠️ **Düşük Örneklem Uyarısı:** En az yoruma sahip video sadece {min_comments} yoruma sahip. Güvenilir analiz için en az 20+ yorum önerilir.")
+        elif min_comments < 20:
+            st.info(f"💡 **Not:** Örneklem boyutu ({min_comments} yorum) orta düzeyde. Sonuçları dikkatli yorumlayın.")
+        
         st.markdown("### Category Analytics")
         
-        tab1, tab2, tab3, tab4 = st.tabs(["Side-by-Side", "Radar View", "Win Share", "Heatmap"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Side-by-Side", "Kategori Pasta", "Zaman Trendi", "Heatmap"])
         
         with tab1:
             fig = create_category_comparison_chart(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
             st.plotly_chart(fig, use_container_width=True)
+            st.caption("📊 **Veri:** Her kategori için yorumların kaçının o kategoriye uyduğu (eşleşme oranı %). Daha yüksek = o konuda daha çok konuşulmuş.")
         
         with tab2:
-            fig = create_category_radar_chart(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
+            # Category Pie Charts - showing match distribution for each category
+            fig = create_category_pie_grid(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
             st.plotly_chart(fig, use_container_width=True)
+            st.caption("📊 **Veri:** Her kategori için eşleşen (yeşil) ve diğer (gri) yorum oranları.")
         
         with tab3:
-            fig = create_winner_summary_chart(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
+            # Category Temporal Charts - sentiment over time for each category
+            v1_comments_raw = v1.get('yorumlar', [])
+            v2_comments_raw = v2.get('yorumlar', [])
+            v1_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v1_comments_raw]
+            v2_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v2_comments_raw]
+            
+            # Get sentiment for both videos
+            from sentiment_analyzer import SentimentAnalyzer
+            analyzer = SentimentAnalyzer()
+            
+            with st.spinner("Duygu analizi yapılıyor..."):
+                v1_sentiments = analyzer.analyze_batch(v1_comments[:100])
+                v2_sentiments = analyzer.analyze_batch(v2_comments[:100])
+            
+            fig = create_category_temporal_chart(
+                result.categories,
+                v1_comments_raw[:100],
+                v2_comments_raw[:100],
+                v1_sentiments,
+                v2_sentiments,
+                v1.get('baslik', 'Video 1'),
+                v2.get('baslik', 'Video 2')
+            )
             st.plotly_chart(fig, use_container_width=True)
+            
+            st.caption("📊 **Veri:** Her kategori için zamana bağlı pozitif (mavi) ve negatif (turuncu) yorum sayıları.")
         
         with tab4:
             fig = create_category_heatmap(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
             st.plotly_chart(fig, use_container_width=True)
         
-        # Category details
-        st.markdown("### Detailed Breakdown")
-        for cat_name, cat_data in result.categories.items():
-            with st.expander(f"**{cat_name}** - V1: {cat_data['v1_percent']:.1f}% | V2: {cat_data['v2_percent']:.1f}%"):
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.markdown(f"**{v1.get('baslik', 'Video 1')[:30]}**")
-                    for sample in cat_data['v1_samples'][:2]:
-                        st.markdown(f"> _{sample[:100]}..._")
-                with col2:
-                    st.markdown(f"**{v2.get('baslik', 'Video 2')[:30]}**")
-                    for sample in cat_data['v2_samples'][:2]:
-                        st.markdown(f"> _{sample[:100]}..._")
+        # ========== LLM COMPARISON SUMMARIES ==========
+        st.markdown("""
+        <div style='display: flex; align-items: center; gap: 10px; margin: 32px 0 16px 0;'>
+            <span style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.9rem;'>🤖</span>
+            <span style='font-size: 1.4rem; font-weight: 700; color: #F8FAFC;'>AI Karşılaştırma Özeti</span>
+        </div>
+        """, unsafe_allow_html=True)
+        st.caption("Her video için yapay zeka tarafından oluşturulan yorum analizi özeti")
+        
+        # Generate summaries for each video
+        from ollama_llm import OllamaLLM
+        
+        col_v1, col_v2 = st.columns(2)
+        
+        with col_v1:
+            v1_name = v1.get('baslik', 'Video 1')[:35]
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05)); 
+                        border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px;'>
+                <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 12px;'>
+                    <span style='font-size: 1.2rem;'>🔵</span>
+                    <span style='font-weight: 600; color: #60A5FA; font-size: 1rem;'>{v1_name}</span>
+                </div>
+                <div style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 8px;'>
+                    📊 {result.video1_total_comments} yorum analiz edildi
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_v2:
+            v2_name = v2.get('baslik', 'Video 2')[:35]
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05)); 
+                        border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px;'>
+                <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 12px;'>
+                    <span style='font-size: 1.2rem;'>🟣</span>
+                    <span style='font-weight: 600; color: #A78BFA; font-size: 1rem;'>{v2_name}</span>
+                </div>
+                <div style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 8px;'>
+                    📊 {result.video2_total_comments} yorum analiz edildi
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Generate LLM summaries
+        with st.spinner("🤖 AI özet oluşturuluyor..."):
+            try:
+                summarizer = OllamaLLM()
+                
+                v1_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v1.get('yorumlar', [])[:30]]
+                v2_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v2.get('yorumlar', [])[:30]]
+                
+                # Get individual summaries
+                v1_summary_result = summarizer.summarize_comments(v1_comments, v1.get('baslik', 'Video 1'))
+                v2_summary_result = summarizer.summarize_comments(v2_comments, v2.get('baslik', 'Video 2'))
+                
+                col_s1, col_s2 = st.columns(2)
+                
+                with col_s1:
+                    st.markdown(f"""
+                    <div style='background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 16px; margin-top: 12px; border-left: 3px solid #3B82F6;'>
+                        <p style='color: #E2E8F0; font-size: 0.9rem; line-height: 1.6; margin: 0;'>
+                            {v1_summary_result.summary if v1_summary_result.summary else "Özet oluşturulamadı."}
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_s2:
+                    st.markdown(f"""
+                    <div style='background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 16px; margin-top: 12px; border-left: 3px solid #8B5CF6;'>
+                        <p style='color: #E2E8F0; font-size: 0.9rem; line-height: 1.6; margin: 0;'>
+                            {v2_summary_result.summary if v2_summary_result.summary else "Özet oluşturulamadı."}
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Overall comparison based on result.summary
+                st.markdown("<br>", unsafe_allow_html=True)
+                comparison_text = result.summary if result.summary else "Karşılaştırma sonucu mevcut değil."
+                
+                st.markdown(f"""
+                <div style='background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); 
+                            border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin-top: 16px;'>
+                    <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 12px;'>
+                        <span style='font-size: 1.2rem;'>⚔️</span>
+                        <span style='font-weight: 600; color: #10B981; font-size: 1.1rem;'>Karşılaştırma Sonucu</span>
+                    </div>
+                    <p style='color: #E2E8F0; font-size: 0.9rem; line-height: 1.7; margin: 0;'>
+                        {comparison_text}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            except Exception as e:
+                st.warning(f"AI özet oluşturulamadı: {e}")
+                st.info("Ollama bağlantısını kontrol edin: ollama serve")
+        
         
         st.markdown("### Export Data")
         tab_v1, tab_v2 = st.tabs([f"{v1.get('baslik', 'Video 1')[:20]}", f"{v2.get('baslik', 'Video 2')[:20]}"])
@@ -1482,106 +1899,53 @@ def page_stats():
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # ========== 5. EN ÇOK KULLANILAN EMOJİLER ==========
+    # ========== 5. ZAMANA BAĞLI DUYGU DEĞİŞİMİ ==========
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
-        <span style='background: linear-gradient(135deg, #06B6D4, #3B82F6); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>5️⃣</span>
-        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #06B6D4, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>TF-IDF Anahtar Kelime Analizi</span>
+        <span style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>5️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #3B82F6, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Zamana Bağlı Duygu Analizi</span>
     </div>
     """, unsafe_allow_html=True)
     
-    st.caption("En ayırt edici ve önemli kelimeler (sadece sık kullanılan değil, gerçekten anlamlı olanlar)")
+    st.caption("📅 Yorum tarihlerine göre duygu değişimi (scatter plot + trend çizgisi)")
     
-    try:
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        import nltk
-        from nltk.corpus import stopwords
-        
-        # Download Turkish stopwords if not already downloaded
+    if sentiment and len(all_comments) > 0:
         try:
-            turkish_stopwords = list(stopwords.words('turkish'))
-        except LookupError:
-            nltk.download('stopwords', quiet=True)
-            turkish_stopwords = list(stopwords.words('turkish'))
-        
-        # Clean texts
-        cleaned_texts = [t.lower().strip() for t in texts if len(t) > 20]
-        
-        if len(cleaned_texts) > 5:
-            # TF-IDF Vectorizer with Turkish stopwords
-            tfidf = TfidfVectorizer(
-                max_features=30,
-                ngram_range=(1, 1),
-                min_df=2,
-                max_df=0.7,
-                stop_words=turkish_stopwords,
-                token_pattern=r'(?u)\b[a-zA-ZçğıöşüÇĞİÖŞÜ]{3,}\b'  # At least 3 chars, Turkish letters
-            )
-            tfidf_matrix = tfidf.fit_transform(cleaned_texts)
+            # Check if comments have timestamps
+            has_timestamps = any(c.get('timestamp', 0) not in [0, None, ''] for c in all_comments)
             
-            # Get feature names and their average TF-IDF scores
-            feature_names = tfidf.get_feature_names_out()
-            avg_scores = tfidf_matrix.mean(axis=0).A1
-            
-            # Sort by score
-            sorted_indices = np.argsort(avg_scores)[::-1]
-            top_words = [(feature_names[i], avg_scores[i]) for i in sorted_indices[:15]]
-            
-            if top_words:
-                words = [w[0] for w in top_words]
-                scores = [w[1] for w in top_words]
-                
-                # Viridis gradient
-                colors = px.colors.sequential.Viridis[:len(words)]
-                if len(colors) < len(words):
-                    colors = px.colors.sequential.Viridis * 2
-                
-                fig = go.Figure()
-                fig.add_trace(go.Bar(
-                    y=words[::-1],
-                    x=scores[::-1],
-                    orientation='h',
-                    marker=dict(
-                        color=colors[:len(words)][::-1],
-                        line=dict(width=1, color='rgba(255,255,255,0.5)')
-                    ),
-                    text=[f" {s:.4f}" for s in scores[::-1]],
-                    textposition='outside',
-                    textfont=dict(size=11, color='#E2E8F0'),
-                    hovertemplate='<b>%{y}</b><br>TF-IDF Skoru: %{x:.4f}<extra></extra>'
-                ))
-                
-                fig.update_layout(
-                    xaxis_title="TF-IDF Skoru (Yüksek = Daha Önemli)",
-                    yaxis_title="",
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(color='#E2E8F0', size=12),
-                    height=420,
-                    margin=dict(l=20, r=80, t=10, b=40),
-                    hoverlabel=dict(bgcolor="#1E293B", bordercolor="#06B6D4")
-                )
-                fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
-                fig.update_yaxes(showgrid=False)
-                
+            if has_timestamps:
+                fig = create_temporal_sentiment_chart(all_comments, sentiment)
                 st.plotly_chart(fig, use_container_width=True)
                 
-                # Insight
+                # Insight based on trend
+                pos_count = sum(1 for s in sentiment if hasattr(s, 'label') and s.label == 'positive')
+                neg_count = sum(1 for s in sentiment if hasattr(s, 'label') and s.label == 'negative')
+                total = len(sentiment)
+                
+                if pos_count > neg_count * 1.5:
+                    insight = f"📈 Genel trend POZİTİF: {pos_count}/{total} ({pos_count/total*100:.0f}%) yorum olumlu."
+                    insight_color = "#10B981"
+                elif neg_count > pos_count * 1.5:
+                    insight = f"📉 Genel trend NEGATİF: {neg_count}/{total} ({neg_count/total*100:.0f}%) yorum olumsuz."
+                    insight_color = "#EF4444"
+                else:
+                    insight = f"↔️ Dengeli trend: Pozitif {pos_count} (%{pos_count/total*100:.0f}), Negatif {neg_count} (%{neg_count/total*100:.0f})"
+                    insight_color = "#3B82F6"
+                
                 st.markdown(f"""
-                <div style='background: rgba(30, 41, 59, 0.5); border-left: 3px solid #06B6D4; 
-                            padding: 12px 16px; margin-top: 8px; border-radius: 6px;'>
-                    <span style='color: #E2E8F0; font-size: 0.85rem;'>
-                        💡 <b>TF-IDF</b> (Term Frequency-Inverse Document Frequency), bir kelimenin hem sıklığını hem de "benzersizliğini" ölçer. 
-                        Yüksek skorlu kelimeler, bu yorumlarda özellikle öne çıkan ve anlamlı terimlerdir.
-                    </span>
+                <div style='background: rgba(30, 41, 59, 0.5); border-left: 3px solid {insight_color}; 
+                            padding: 12px 16px; margin-top: 16px; border-radius: 6px;'>
+                    <span style='color: #E2E8F0; font-size: 0.85rem;'>{insight}</span>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                st.info("Yeterli TF-IDF verisi hesaplanamadı.")
-        else:
-            st.info("TF-IDF analizi için en az 5 yorum gerekli.")
-    except Exception as e:
-        st.warning(f"TF-IDF analizi yapılamadı: {e}")
+                st.info("⚠️ Yorumlarda tarih bilgisi bulunamadı. Yeni bir video analizi yaparak tarihli yorumları çekebilirsiniz.")
+                
+        except Exception as e:
+            st.warning(f"Temporal grafik oluşturulamadı: {e}")
+    else:
+        st.warning("Temporal analiz için önce duygu analizi gerekli. Bir video analiz edin.")
 
 
 # ============= MAIN =============

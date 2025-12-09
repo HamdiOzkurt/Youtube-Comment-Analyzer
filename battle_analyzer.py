@@ -37,12 +37,32 @@ class BattleAnalyzer:
     """Kategori bazlı video karşılaştırma analizi"""
     
     BATCH_SIZE = 5  # Aynı anda kaç yorum gönderilecek
+    MAX_COMMENT_LENGTH = 80  # Metin kırpma limiti
     
     def __init__(self, model_name: str = "gemma3:4b", base_url: str = "http://localhost:11434", use_gpu: bool = True):
         self.model_name = model_name
         self.base_url = base_url
         self.api_url = f"{base_url}/api/generate"
         self.use_gpu = use_gpu
+    
+    @staticmethod
+    def dedup_comments(comments: List[str]) -> List[str]:
+        """Tekrarlayan yorumları filtrele (case-insensitive, ilk 50 karakter bazlı)"""
+        seen = set()
+        unique = []
+        for c in comments:
+            # Normalize: lowercase, ilk 50 karakter
+            key = c.strip().lower()[:50]
+            if key and key not in seen:
+                seen.add(key)
+                unique.append(c)
+        return unique
+    
+    def truncate_text(self, text: str) -> str:
+        """Metni belirli uzunlukta kırp"""
+        if len(text) > self.MAX_COMMENT_LENGTH:
+            return text[:self.MAX_COMMENT_LENGTH] + "..."
+        return text
     
     def _call_ollama(self, prompt: str, max_tokens: int = 100) -> str:
         """Ollama API çağrısı (GPU destekli)"""
@@ -176,12 +196,19 @@ Bu yorum bu kategoriye uyuyor mu? Sadece "EVET" veya "HAYIR" yaz."""
         v1_total_score = 0
         v2_total_score = 0
         
-        # Her yorum için sınıflandırma matrisi
-        v1_sample = video1_comments[:max_comments_per_video]
-        v2_sample = video2_comments[:max_comments_per_video]
+        # Deduplication uygula
+        v1_unique = self.dedup_comments(video1_comments)
+        v2_unique = self.dedup_comments(video2_comments)
         
-        v1_classifications = [{"yorum": c[:100]} for c in v1_sample]
-        v2_classifications = [{"yorum": c[:100]} for c in v2_sample]
+        if progress_callback:
+            progress_callback(f"📋 Dedup: V1 {len(video1_comments)}→{len(v1_unique)}, V2 {len(video2_comments)}→{len(v2_unique)}")
+        
+        # Her yorum için sınıflandırma matrisi
+        v1_sample = v1_unique[:max_comments_per_video]
+        v2_sample = v2_unique[:max_comments_per_video]
+        
+        v1_classifications = [{"yorum": self.truncate_text(c)} for c in v1_sample]
+        v2_classifications = [{"yorum": self.truncate_text(c)} for c in v2_sample]
         
         for cat_name, cat_desc in categories.items():
             if progress_callback:

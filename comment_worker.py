@@ -7,19 +7,80 @@ import yt_dlp
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 import time
+import re
+
+
+def clean_for_sentiment(text: str) -> str:
+    """
+    Duygu analizi için HAFIF temizlik
+    - URL kaldırma
+    - Mention kaldırma (@user)
+    - Hashtag kaldırma
+    - Emoji'ler KORUNUYOR (duygu göstergesi)
+    - Stop words KORUNUYOR (bağlam için önemli)
+    """
+    if not text or not isinstance(text, str):
+        return ""
+    
+    # URL'leri kaldır
+    text = re.sub(r'http\S+|www\.\S+', '', text)
+    
+    # Mention'ları kaldır (@username)
+    text = re.sub(r'@\w+', '', text)
+    
+    # Hashtag'leri kaldır
+    text = re.sub(r'#\w+', '', text)
+    
+    # Fazla boşlukları temizle
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
+
+def clean_for_nlp(text: str) -> str:
+    """
+    NLP/İstatistik analizleri için TAM temizlik
+    - URL kaldırma
+    - Mention kaldırma
+    - Hashtag kaldırma
+    - Emoji ve özel karakterler kaldırma
+    - Sadece Türkçe/İngilizce harfler ve sayılar kalır
+    """
+    if not text or not isinstance(text, str):
+        return ""
+    
+    # URL'leri kaldır
+    text = re.sub(r'http\S+|www\.\S+', '', text)
+    
+    # Mention'ları kaldır (@username)
+    text = re.sub(r'@\w+', '', text)
+    
+    # Hashtag'leri kaldır
+    text = re.sub(r'#\w+', '', text)
+    
+    # Emoji ve Latin olmayan karakterleri kaldır (Türkçe harfler hariç)
+    text = re.sub(r'[^a-zA-Z0-9çğıöşüÇĞİÖŞÜ\s]', '', text)
+    
+    # Fazla boşlukları temizle
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
 
 
 class CommentWorker:
-    def __init__(self, max_workers=5, max_comments_per_video=None):
+    def __init__(self, max_workers=5, max_comments_per_video=None, auto_clean=True):
         """
         Args:
             max_workers: Aynı anda kaç video işlenecek (paralel)
             max_comments_per_video: Her videodan max kaç yorum (None = hepsi)
+            auto_clean: Yorumları otomatik temizle (varsayılan: True)
         """
         self.max_workers = max_workers
         self.max_comments_per_video = max_comments_per_video
+        self.auto_clean = auto_clean
         self.results = []
         self.errors = []
+
         
     def fetch_comments_from_url(self, video_url):
         """Tek bir videodan yorum çeker"""
@@ -64,11 +125,23 @@ class CommentWorker:
                 # Yorumları işle
                 for i, comment in enumerate(comments[:self.max_comments_per_video] 
                                            if self.max_comments_per_video else comments):
+                    ham_metin = comment.get('text', '')
+                    
+                    # İki farklı temizlik seviyesi
+                    if self.auto_clean:
+                        duygu_metin = clean_for_sentiment(ham_metin)  # Emoji korunur
+                        nlp_metin = clean_for_nlp(ham_metin)  # Tam temizlik
+                    else:
+                        duygu_metin = ham_metin
+                        nlp_metin = ham_metin
+                    
                     video_data['yorumlar'].append({
                         'sira': i + 1,
                         'yazar': comment.get('author', 'Anonim'),
                         'yazar_id': comment.get('author_id', ''),
-                        'metin': comment.get('text', ''),
+                        'metin': ham_metin,  # Ham metin (orijinal)
+                        'metin_duygu': duygu_metin,  # Duygu analizi için (emoji korunur)
+                        'metin_temiz': nlp_metin,  # NLP/İstatistik için (tam temiz)
                         'begeni': comment.get('like_count', 0),
                         'timestamp': comment.get('timestamp', 0),
                         'cevap_sayisi': comment.get('reply_count', 0),

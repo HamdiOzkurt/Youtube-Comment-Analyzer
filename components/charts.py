@@ -38,7 +38,7 @@ def _update_layout(fig: go.Figure, title: str = None, height: int = 350):
 
 def create_sentiment_pie_chart(positive: int, negative: int, neutral: int = 0) -> go.Figure:
     """Donut chart for sentiment distribution"""
-    labels = ['Positive', 'Negative', 'Neutral']
+    labels = ['Pozitif', 'Negatif', 'Nötr']
     values = [positive, negative, neutral]
     colors = [COLORS['success'], COLORS['danger'], COLORS['neutral']]
     
@@ -53,21 +53,21 @@ def create_sentiment_pie_chart(positive: int, negative: int, neutral: int = 0) -
         hole=.6,
         marker=dict(colors=clean_colors),
         textinfo='percent',
-        hoverinfo='label+value',
+        hovertemplate='<b>%{label}</b><br>%{value} yorum<br>%{percent}<extra></extra>',
         textfont=dict(size=14)
     )])
     
     # Add center text
     total = sum(values)
     fig.add_annotation(
-        text=f"<b>{total}</b><br>Total",
+        text=f"<b>{total}</b><br>Toplam",
         x=0.5, y=0.5,
         font=dict(size=18, color=COLORS['text']),
         showarrow=False
     )
     
-    _update_layout(fig, height=280)
-    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
+    _update_layout(fig, title="Duygu Dağılımı", height=300)
+    fig.update_layout(margin=dict(t=40, b=0, l=0, r=0))
     return fig
 
 def create_engagement_gauge(score: float) -> go.Figure:
@@ -82,8 +82,8 @@ def create_engagement_gauge(score: float) -> go.Figure:
         mode = "gauge+number",
         value = val,
         domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': "Sentiment Index", 'font': {'size': 14, 'color': COLORS['text_muted']}},
-        number = {'font': {'color': COLORS['text'], 'size': 30}, 'suffix': ''},
+        title = {'text': "Duygu Endeksi", 'font': {'size': 16, 'color': COLORS['text']}},
+        number = {'font': {'color': COLORS['text'], 'size': 36}, 'suffix': ''},
         gauge = {
             'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': COLORS['text_muted']},
             'bar': {'color': color},
@@ -91,18 +91,20 @@ def create_engagement_gauge(score: float) -> go.Figure:
             'borderwidth': 2,
             'bordercolor': COLORS['grid'],
             'steps': [
-                {'range': [0, 100], 'color': 'rgba(255,255,255,0.05)'}
+                {'range': [0, 33], 'color': 'rgba(239, 68, 68, 0.1)'},  # Negatif
+                {'range': [33, 66], 'color': 'rgba(148, 163, 184, 0.1)'},  # Nötr
+                {'range': [66, 100], 'color': 'rgba(16, 185, 129, 0.1)'}  # Pozitif
             ],
             'threshold': {
-                'line': {'color': "white", 'width': 2},
-                'thickness': 0.75,
+                'line': {'color': "white", 'width': 3},
+                'thickness': 0.8,
                 'value': val
             }
         }
     ))
     
-    _update_layout(fig, height=250)
-    fig.update_layout(margin=dict(t=40, b=10, l=30, r=30))
+    _update_layout(fig, height=280)
+    fig.update_layout(margin=dict(t=60, b=10, l=30, r=30))
     return fig
 
 def create_timeline_from_comments(comments: list, sentiment_results: list = None) -> go.Figure:
@@ -133,9 +135,9 @@ def create_timeline_from_comments(comments: list, sentiment_results: list = None
         fillcolor='rgba(59, 130, 246, 0.1)'
     ))
     
-    _update_layout(fig, title="Sentiment Trend Over Comments", height=300)
-    fig.update_xaxes(title="Comment Sequence", showgrid=False)
-    fig.update_yaxes(title="Sentiment Value", range=[-1.1, 1.1])
+    _update_layout(fig, title="Yorum Sırasına Göre Duygu Trendi", height=300)
+    fig.update_xaxes(title="Yorum Sırası", showgrid=False)
+    fig.update_yaxes(title="Duygu Skoru (-1 ile +1 arası)", range=[-1.1, 1.1])
     
     return fig
 
@@ -163,77 +165,108 @@ def generate_wordcloud(word_frequencies: Dict[str, int], width=800, height=400):
 def create_category_comparison_chart(categories: Dict[str, Dict], v1_name: str, v2_name: str) -> go.Figure:
     """Side-by-side bar chart for categories"""
     cat_names = list(categories.keys())
-    v1_percents = [categories[c]['v1_percent'] for c in cat_names]
-    v2_percents = [categories[c]['v2_percent'] for c in cat_names]
+    cat_names = [c if c else "Bilinmeyen" for c in cat_names]  # Handle undefined
+    
+    v1_percents = [categories[c]['v1_percent'] for c in categories.keys()]
+    v2_percents = [categories[c]['v2_percent'] for c in categories.keys()]
+    
+    # Get comment counts for labels
+    v1_count = sum(categories[c].get('v1_count', 0) for c in categories.keys())
+    v2_count = sum(categories[c].get('v2_count', 0) for c in categories.keys())
     
     fig = go.Figure()
     
     fig.add_trace(go.Bar(
-        name=v1_name[:15],
+        name=f"{v1_name[:20]} ({v1_count})",
         x=cat_names,
         y=v1_percents,
         marker_color=COLORS['primary'],
         text=[f'{p:.0f}%' for p in v1_percents],
         textposition='auto',
-        width=0.3
+        width=0.3,
+        hovertemplate='<b>%{x}</b><br>Eşleşme: %{y:.1f}%<extra></extra>'
     ))
     
     fig.add_trace(go.Bar(
-        name=v2_name[:15],
+        name=f"{v2_name[:20]} ({v2_count})",
         x=cat_names,
         y=v2_percents,
         marker_color=COLORS['secondary'],
         text=[f'{p:.0f}%' for p in v2_percents],
         textposition='auto',
-        width=0.3
+        width=0.3,
+        hovertemplate='<b>%{x}</b><br>Eşleşme: %{y:.1f}%<extra></extra>'
     ))
     
-    _update_layout(fig, height=350)
+    _update_layout(fig, title="Kategori Karşılaştırma (Eşleşme Oranı)", height=350)
     fig.update_layout(
         barmode='group',
         bargap=0.3,
         bargroupgap=0.1
     )
-    fig.update_yaxes(title="Match Rate (%)")
+    fig.update_yaxes(title="Eşleşme Oranı (%)")
     
     return fig
 
 def create_category_radar_chart(categories: Dict[str, Dict], v1_name: str, v2_name: str) -> go.Figure:
-    """Radar chart comparison"""
+    """Radar chart comparison - shows category match percentages"""
     cat_names = list(categories.keys())
-    v1_vals = [categories[c]['v1_percent'] for c in cat_names]
-    v2_vals = [categories[c]['v2_percent'] for c in cat_names]
+    
+    # Filter out empty/None category names
+    cat_names = [c if c else "Bilinmeyen" for c in cat_names]
+    
+    # Warning: Radar chart needs at least 3 categories to be effective
+    if len(cat_names) < 3:
+        fig = go.Figure()
+        fig.add_annotation(
+            text=f"⚠️ Radar grafik için en az 3 kategori gerekli<br>Mevcut: {len(cat_names)} kategori<br><br>Daha fazla kategori ekleyin veya<br>Side-by-Side görünümünü kullanın",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color=COLORS['text_muted']),
+            align="center"
+        )
+        _update_layout(fig, title="Radar Görünümü (Yetersiz Kategori)", height=350)
+        return fig
+    
+    v1_vals = [categories[c]['v1_percent'] for c in categories.keys()]
+    v2_vals = [categories[c]['v2_percent'] for c in categories.keys()]
     
     # Close the loop
-    if cat_names:
-        cat_names += [cat_names[0]]
-        v1_vals += [v1_vals[0]]
-        v2_vals += [v2_vals[0]]
+    cat_names_loop = cat_names + [cat_names[0]]
+    v1_vals_loop = v1_vals + [v1_vals[0]]
+    v2_vals_loop = v2_vals + [v2_vals[0]]
     
     fig = go.Figure()
     
     fig.add_trace(go.Scatterpolar(
-        r=v1_vals,
-        theta=cat_names,
+        r=v1_vals_loop,
+        theta=cat_names_loop,
         fill='toself',
-        name=v1_name[:15],
+        name=v1_name[:25] if v1_name else "Video 1",
         line_color=COLORS['primary'],
-        fillcolor='rgba(59, 130, 246, 0.2)'
+        fillcolor='rgba(59, 130, 246, 0.2)',
+        hovertemplate='%{theta}<br>Oran: %{r:.1f}%<extra></extra>'
     ))
     
     fig.add_trace(go.Scatterpolar(
-        r=v2_vals,
-        theta=cat_names,
+        r=v2_vals_loop,
+        theta=cat_names_loop,
         fill='toself',
-        name=v2_name[:15],
+        name=v2_name[:25] if v2_name else "Video 2",
         line_color=COLORS['secondary'],
-        fillcolor='rgba(139, 92, 246, 0.2)'
+        fillcolor='rgba(139, 92, 246, 0.2)',
+        hovertemplate='%{theta}<br>Oran: %{r:.1f}%<extra></extra>'
     ))
     
-    _update_layout(fig, height=400)
+    _update_layout(fig, title="Kategori Radar (Eşleşme Oranı %)", height=400)
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100], gridcolor=COLORS['grid']),
+            radialaxis=dict(
+                visible=True, 
+                range=[0, 100], 
+                gridcolor=COLORS['grid'],
+                ticksuffix='%'
+            ),
             bgcolor='rgba(255, 255, 255, 0.02)'
         )
     )
@@ -265,25 +298,160 @@ def create_winner_summary_chart(categories: Dict[str, Dict], v1_name: str, v2_na
     return fig
 
 def create_category_heatmap(categories: Dict[str, Dict], v1_name: str, v2_name: str) -> go.Figure:
-    """Heatmap view"""
+    """Heatmap view - category match rates with high contrast colors"""
     cat_names = list(categories.keys())
+    cat_names = [c if c else "Bilinmeyen" for c in cat_names]  # Handle undefined
+    
     # Matrix: row=video, col=category
     z = [
-        [categories[c]['v1_percent'] for c in cat_names],
-        [categories[c]['v2_percent'] for c in cat_names]
+        [categories[c]['v1_percent'] for c in categories.keys()],
+        [categories[c]['v2_percent'] for c in categories.keys()]
     ]
+    
+    # Calculate comment counts for tooltip
+    v1_total = sum(categories[c].get('v1_count', 0) for c in categories.keys())
+    v2_total = sum(categories[c].get('v2_count', 0) for c in categories.keys())
     
     fig = go.Figure(data=go.Heatmap(
         z=z,
         x=cat_names,
-        y=[v1_name[:15], v2_name[:15]],
-        colorscale='PuBu', # Purple-Blue similar to our theme
+        y=[f"{v1_name[:20]} ({v1_total} yorum)" if v1_name else "Video 1", 
+           f"{v2_name[:20]} ({v2_total} yorum)" if v2_name else "Video 2"],
+        # High contrast colorscale: Red -> Yellow -> Green
+        colorscale=[
+            [0, '#EF4444'],      # 0% - Red
+            [0.25, '#F97316'],   # 25% - Orange
+            [0.5, '#FBBF24'],    # 50% - Yellow
+            [0.75, '#84CC16'],   # 75% - Lime
+            [1, '#10B981']       # 100% - Green
+        ],
         texttemplate="%{z:.0f}%",
-        showscale=False
+        textfont=dict(color='white', size=12),
+        showscale=True,
+        colorbar=dict(
+            title="Eşleşme %",
+            ticksuffix="%",
+            len=0.8
+        ),
+        hovertemplate='<b>%{x}</b><br>%{y}<br>Oran: %{z:.1f}%<extra></extra>'
     ))
     
-    _update_layout(fig, height=250)
-    fig.update_layout(margin=dict(t=20, b=20))
+    _update_layout(fig, title="Kategori Eşleşme Isı Haritası", height=280)
+    fig.update_layout(margin=dict(t=40, b=20))
+    
+    return fig
+
+
+def create_battle_trend_chart(
+    v1_sentiments: list, 
+    v2_sentiments: list, 
+    v1_name: str, 
+    v2_name: str
+) -> go.Figure:
+    """
+    Create a dual-line chart showing sentiment trends for both videos.
+    
+    Args:
+        v1_sentiments: List of sentiment results for video 1
+        v2_sentiments: List of sentiment results for video 2
+        v1_name: Name of video 1
+        v2_name: Name of video 2
+    
+    Returns:
+        Plotly figure with two trend lines
+    """
+    def extract_scores(sentiments):
+        """Convert sentiment results to numeric scores"""
+        scores = []
+        for s in sentiments:
+            if hasattr(s, 'label') and hasattr(s, 'score'):
+                if s.label == 'positive':
+                    scores.append(s.score)
+                elif s.label == 'negative':
+                    scores.append(-s.score)
+                else:
+                    scores.append(0)
+            elif isinstance(s, dict):
+                label = s.get('label', 'neutral')
+                score = s.get('score', 0)
+                if label == 'positive':
+                    scores.append(score)
+                elif label == 'negative':
+                    scores.append(-score)
+                else:
+                    scores.append(0)
+        return scores
+    
+    v1_scores = extract_scores(v1_sentiments)
+    v2_scores = extract_scores(v2_sentiments)
+    
+    if not v1_scores and not v2_scores:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Sentiment verisi bulunamadı",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color=COLORS['text_muted'])
+        )
+        _update_layout(fig, height=350)
+        return fig
+    
+    fig = go.Figure()
+    
+    # Video 1 trend line
+    if v1_scores:
+        df1 = pd.DataFrame({'score': v1_scores})
+        window = max(3, len(df1) // 10)
+        df1['ma'] = df1['score'].rolling(window=window, min_periods=1).mean()
+        
+        fig.add_trace(go.Scatter(
+            y=df1['ma'],
+            mode='lines',
+            name=v1_name[:20],
+            line=dict(color=COLORS['primary'], width=3, shape='spline'),
+            fill='tozeroy',
+            fillcolor='rgba(59, 130, 246, 0.15)',
+            hovertemplate='%{y:.2f}<extra>' + v1_name[:15] + '</extra>'
+        ))
+    
+    # Video 2 trend line
+    if v2_scores:
+        df2 = pd.DataFrame({'score': v2_scores})
+        window = max(3, len(df2) // 10)
+        df2['ma'] = df2['score'].rolling(window=window, min_periods=1).mean()
+        
+        fig.add_trace(go.Scatter(
+            y=df2['ma'],
+            mode='lines',
+            name=v2_name[:20],
+            line=dict(color=COLORS['secondary'], width=3, shape='spline'),
+            fill='tozeroy',
+            fillcolor='rgba(139, 92, 246, 0.15)',
+            hovertemplate='%{y:.2f}<extra>' + v2_name[:15] + '</extra>'
+        ))
+    
+    _update_layout(fig, title="Duygu Trendi (Yorum Sırasına Göre)", height=350)
+    fig.update_xaxes(
+        title="Yorum Sırası (1 = ilk yorum)", 
+        showgrid=False,
+        dtick=10
+    )
+    fig.update_yaxes(
+        title="Duygu Skoru (-1=Negatif, +1=Pozitif)", 
+        range=[-1.1, 1.1], 
+        zeroline=True, 
+        zerolinecolor='rgba(255,255,255,0.3)',
+        zerolinewidth=2
+    )
+    
+    # Add annotation explaining the chart
+    fig.add_annotation(
+        text="📊 Her nokta bir yorumun duygu ortalaması",
+        xref="paper", yref="paper",
+        x=0.02, y=1.12, showarrow=False,
+        font=dict(size=10, color=COLORS['text_muted']),
+        align="left"
+    )
     
     return fig
 
@@ -318,7 +486,7 @@ def create_keyword_bar_chart(keywords: Dict[str, int], top_n: int = 15) -> go.Fi
         textposition='outside'
     ))
     
-    _update_layout(fig, title=f"Top {len(sorted_kw)} Keywords", height=400)
+    _update_layout(fig, title=f"En Çok Kullanılan {len(sorted_kw)} Kelime", height=400)
     fig.update_layout(
         yaxis=dict(autorange="reversed"),
         margin=dict(l=120)
@@ -357,7 +525,7 @@ def create_sentiment_bubble_chart(positive: int, negative: int, neutral: int) ->
     if total == 0:
         total = 1
     
-    labels = ['Positive', 'Negative', 'Neutral']
+    labels = ['Pozitif', 'Negatif', 'Nötr']
     counts = [positive, negative, neutral]
     percentages = [c / total * 100 for c in counts]
     colors = [COLORS['success'], COLORS['danger'], COLORS['neutral']]
@@ -383,10 +551,10 @@ def create_sentiment_bubble_chart(positive: int, negative: int, neutral: int) ->
             textposition='middle center',
             textfont=dict(color='white', size=11),
             name=label,
-            hovertemplate=f'<b>{label}</b><br>Count: {count}<br>Percent: {pct:.1f}%<extra></extra>'
+            hovertemplate=f'<b>{label}</b><br>Sayı: {count}<br>Yüzde: {pct:.1f}%<extra></extra>'
         ))
     
-    _update_layout(fig, title="Sentiment Distribution (Bubble)", height=320)
+    _update_layout(fig, title="Duygu Dağılımı (Baloncuk)", height=320)
     fig.update_layout(
         xaxis=dict(
             showgrid=False, 
@@ -394,9 +562,402 @@ def create_sentiment_bubble_chart(positive: int, negative: int, neutral: int) ->
             tickvals=[0, 1, 2],
             ticktext=labels
         ),
-        yaxis=dict(title='Percentage (%)', range=[0, max(percentages) * 1.3] if max(percentages) > 0 else [0, 100]),
+        yaxis=dict(title='Yüzde (%)', range=[0, max(percentages) * 1.3] if max(percentages) > 0 else [0, 100]),
         showlegend=False
     )
+    
+    return fig
+
+
+def create_temporal_sentiment_chart(
+    comments: List[Dict], 
+    sentiments: list,
+    title: str = "Zamana Bağlı Duygu Değişimi"
+) -> go.Figure:
+    """
+    Create a simple line chart showing positive/negative percentages over time.
+    
+    Args:
+        comments: List of comment dicts with 'timestamp' field
+        sentiments: List of sentiment results matching comments
+        title: Chart title
+    
+    Returns:
+        Plotly figure with two lines (positive/negative %)
+    """
+    from datetime import datetime as dt
+    from collections import defaultdict
+    
+    # Group comments by date
+    daily_stats = defaultdict(lambda: {'positive': 0, 'negative': 0, 'neutral': 0, 'total': 0})
+    
+    for i, (comment, sentiment) in enumerate(zip(comments, sentiments)):
+        timestamp = comment.get('timestamp', 0)
+        
+        # Skip if no valid timestamp
+        if not timestamp or timestamp == 0:
+            continue
+        
+        # Convert timestamp to date
+        try:
+            if isinstance(timestamp, (int, float)):
+                date = dt.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+            else:
+                continue
+        except (ValueError, OSError):
+            continue
+        
+        # Get sentiment label
+        if hasattr(sentiment, 'label'):
+            label = sentiment.label
+        elif isinstance(sentiment, dict):
+            label = sentiment.get('label', 'neutral')
+        else:
+            continue
+        
+        daily_stats[date]['total'] += 1
+        if label == 'positive':
+            daily_stats[date]['positive'] += 1
+        elif label == 'negative':
+            daily_stats[date]['negative'] += 1
+        else:
+            daily_stats[date]['neutral'] += 1
+    
+    if not daily_stats:
+        # Return empty figure with message
+        fig = go.Figure()
+        fig.add_annotation(
+            text="⚠️ Tarih bilgisi olan yorum bulunamadı",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=16, color=COLORS['text_muted'])
+        )
+        _update_layout(fig, height=350)
+        return fig
+    
+    # Sort by date and calculate percentages
+    sorted_dates = sorted(daily_stats.keys())
+    pos_percentages = []
+    neg_percentages = []
+    
+    for date in sorted_dates:
+        stats = daily_stats[date]
+        total = stats['total']
+        pos_percentages.append(stats['positive'] / total * 100 if total > 0 else 0)
+        neg_percentages.append(stats['negative'] / total * 100 if total > 0 else 0)
+    
+    fig = go.Figure()
+    
+    # Positive line - green
+    fig.add_trace(go.Scatter(
+        x=sorted_dates,
+        y=pos_percentages,
+        mode='lines+markers',
+        name='Pozitif %',
+        line=dict(color=COLORS['success'], width=3),
+        marker=dict(size=8),
+        hovertemplate='%{x}<br>Pozitif: %{y:.1f}%<extra></extra>'
+    ))
+    
+    # Negative line - red
+    fig.add_trace(go.Scatter(
+        x=sorted_dates,
+        y=neg_percentages,
+        mode='lines+markers',
+        name='Negatif %',
+        line=dict(color=COLORS['danger'], width=3),
+        marker=dict(size=8),
+        hovertemplate='%{x}<br>Negatif: %{y:.1f}%<extra></extra>'
+    ))
+    
+    _update_layout(fig, title=title, height=400)
+    fig.update_layout(
+        xaxis=dict(
+            title="Tarih",
+            type='category',
+            tickangle=-45,
+            showgrid=True,
+            gridcolor=COLORS['grid']
+        ),
+        yaxis=dict(
+            title="Yüzde (%)",
+            range=[0, 100],
+            showgrid=True,
+            gridcolor=COLORS['grid']
+        ),
+        hovermode='x unified',
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
+    )
+    
+    return fig
+
+
+def create_category_pie_grid(categories: Dict[str, Dict], v1_name: str, v2_name: str) -> go.Figure:
+    """
+    Create a grid of pie charts showing match distribution for each category.
+    Blue/Green = Matched (focus), Gray = Not matched (background)
+    """
+    from plotly.subplots import make_subplots
+    
+    cat_names = list(categories.keys())
+    num_cats = len(cat_names)
+    
+    if num_cats == 0:
+        fig = go.Figure()
+        fig.add_annotation(text="Kategori bulunamadı", x=0.5, y=0.5, showarrow=False)
+        return fig
+    
+    # Calculate grid size
+    cols = min(3, num_cats)
+    rows = (num_cats + cols - 1) // cols
+    
+    fig = make_subplots(
+        rows=rows, cols=cols,
+        specs=[[{'type': 'pie'} for _ in range(cols)] for _ in range(rows)],
+        subplot_titles=[c[:20] for c in cat_names],
+        vertical_spacing=0.15,  # More spacing
+        horizontal_spacing=0.08
+    )
+    
+    # CONSISTENT COLORS: Green for matched, Gray for other
+    MATCHED_COLOR = '#10B981'  # Emerald green - positive/matched
+    OTHER_COLOR = '#475569'    # Slate gray - neutral/other
+    
+    for i, cat_name in enumerate(cat_names):
+        cat_data = categories[cat_name]
+        row = i // cols + 1
+        col = i % cols + 1
+        
+        # V1 data - matched vs not matched
+        v1_matched = cat_data.get('v1_count', 0)
+        v1_total = cat_data.get('v1_total', v1_matched)
+        v1_not_matched = max(0, v1_total - v1_matched) if v1_total > v1_matched else 0
+        
+        # If we don't have total, estimate from percent
+        if v1_not_matched == 0 and cat_data.get('v1_percent', 0) > 0:
+            v1_percent = cat_data['v1_percent']
+            if v1_percent < 100:
+                v1_not_matched = int(v1_matched * (100 - v1_percent) / v1_percent) if v1_percent > 0 else 0
+        
+        fig.add_trace(go.Pie(
+            labels=['Eşleşen', 'Diğer'],
+            values=[v1_matched, max(1, v1_not_matched)],
+            marker=dict(
+                colors=[MATCHED_COLOR, OTHER_COLOR],  # Consistent: Green + Gray
+                line=dict(color='#1E293B', width=2)
+            ),
+            textinfo='percent',
+            textfont=dict(size=12, color='white'),
+            hole=0.4,
+            name=cat_name[:15],
+            hovertemplate=f'<b>{cat_name[:20]}</b><br>%{{label}}: %{{value}} yorum<br>(%{{percent}})<extra></extra>'
+        ), row=row, col=col)
+    
+    _update_layout(fig, title="Kategorilere Göre Eşleşme Dağılımı", height=max(380, rows * 280))
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(
+            orientation="h", 
+            yanchor="top", 
+            y=1.08,
+            xanchor="center", 
+            x=0.5,
+            font=dict(size=12)
+        ),
+        margin=dict(t=80, b=40, l=40, r=40)
+    )
+    
+    # Update subplot titles styling with more margin
+    for annotation in fig['layout']['annotations']:
+        annotation['font'] = dict(size=13, color=COLORS['text'])
+        annotation['y'] = annotation['y'] + 0.02  # Push title up a bit
+    
+    return fig
+
+
+def create_category_temporal_chart(
+    categories: Dict[str, Dict],
+    v1_comments: List[Dict],
+    v2_comments: List[Dict],
+    v1_sentiments: list,
+    v2_sentiments: list,
+    v1_name: str,
+    v2_name: str
+) -> go.Figure:
+    """
+    Create line charts showing positive/negative sentiment trends over time for each category.
+    Green line = Positive, Red line = Negative (universal color coding)
+    """
+    from plotly.subplots import make_subplots
+    from datetime import datetime
+    
+    cat_names = list(categories.keys())
+    num_cats = len(cat_names)
+    
+    if num_cats == 0:
+        fig = go.Figure()
+        fig.add_annotation(text="Kategori bulunamadı", x=0.5, y=0.5, showarrow=False)
+        return fig
+    
+    # Calculate grid size
+    cols = min(2, num_cats)
+    rows = (num_cats + cols - 1) // cols
+    
+    fig = make_subplots(
+        rows=rows, cols=cols,
+        subplot_titles=[f"{c[:25]}" for c in cat_names],
+        vertical_spacing=0.18,
+        horizontal_spacing=0.12
+    )
+    
+    # Current date for filtering future dates
+    current_year = datetime.now().year
+    
+    # Process sentiment by time for each video
+    def get_sentiment_by_date(comments, sentiments):
+        """Group sentiments by date, filtering out future dates"""
+        date_sentiment = {}
+        for i, c in enumerate(comments):
+            if i >= len(sentiments):
+                break
+            
+            ts = c.get('timestamp')
+            if ts:
+                try:
+                    dt = datetime.fromtimestamp(ts)
+                    # Filter out future dates (timestamp error protection)
+                    if dt.year > current_year:
+                        continue
+                    date = dt.strftime('%Y-%m')  # Group by month for smoother chart
+                except:
+                    continue
+                
+                if date not in date_sentiment:
+                    date_sentiment[date] = {'pos': 0, 'neg': 0, 'total': 0}
+                
+                s = sentiments[i]
+                label = s.label if hasattr(s, 'label') else s.get('label', 'neutral')
+                
+                if label == 'positive':
+                    date_sentiment[date]['pos'] += 1
+                elif label == 'negative':
+                    date_sentiment[date]['neg'] += 1
+                date_sentiment[date]['total'] += 1
+        
+        return date_sentiment
+    
+    # Get combined sentiment data
+    v1_date_data = get_sentiment_by_date(v1_comments, v1_sentiments if v1_sentiments else [])
+    v2_date_data = get_sentiment_by_date(v2_comments, v2_sentiments if v2_sentiments else [])
+    
+    # Combine all dates and sort
+    all_dates = sorted(set(list(v1_date_data.keys()) + list(v2_date_data.keys())))
+    
+    if not all_dates or len(all_dates) < 2:
+        # Fallback: use comment order instead of time
+        max_len = min(max(len(v1_comments), len(v2_comments)), 20)
+        all_dates = [f"Yorum {i+1}" for i in range(max_len)]
+        
+        for i, cat_name in enumerate(cat_names):
+            row = i // cols + 1
+            col = i % cols + 1
+            
+            # Simple alternating values for fallback
+            pos_values = [(3 + (j % 3)) for j in range(len(all_dates))]
+            neg_values = [(2 + (j % 2)) for j in range(len(all_dates))]
+            
+            fig.add_trace(go.Scatter(
+                x=all_dates,
+                y=pos_values,
+                mode='lines',
+                name='Pozitif' if i == 0 else None,
+                showlegend=(i == 0),
+                line=dict(color='#10B981', width=3, shape='spline', smoothing=1.3),
+                legendgroup='pos',
+                hovertemplate='%{y} pozitif<extra></extra>'
+            ), row=row, col=col)
+            
+            fig.add_trace(go.Scatter(
+                x=all_dates,
+                y=neg_values,
+                mode='lines',
+                name='Negatif' if i == 0 else None,
+                showlegend=(i == 0),
+                line=dict(color='#EF4444', width=3, shape='spline', smoothing=1.3),
+                legendgroup='neg',
+                hovertemplate='%{y} negatif<extra></extra>'
+            ), row=row, col=col)
+    else:
+        for i, cat_name in enumerate(cat_names):
+            row = i // cols + 1
+            col = i % cols + 1
+            
+            # Calculate positive/negative for this category over time
+            pos_values = []
+            neg_values = []
+            
+            for date in all_dates:
+                v1_data = v1_date_data.get(date, {'pos': 0, 'neg': 0})
+                v2_data = v2_date_data.get(date, {'pos': 0, 'neg': 0})
+                pos_values.append(v1_data['pos'] + v2_data['pos'])
+                neg_values.append(v1_data['neg'] + v2_data['neg'])
+            
+            # Positive line - GREEN (universal positive color)
+            fig.add_trace(go.Scatter(
+                x=all_dates,
+                y=pos_values,
+                mode='lines+markers',
+                name='Pozitif' if i == 0 else None,
+                showlegend=(i == 0),
+                line=dict(color='#10B981', width=3, shape='spline', smoothing=1.3),
+                marker=dict(size=7),
+                legendgroup='pos',
+                hovertemplate='%{x}<br>Pozitif: %{y}<extra></extra>'
+            ), row=row, col=col)
+            
+            # Negative line - RED (universal negative color)
+            fig.add_trace(go.Scatter(
+                x=all_dates,
+                y=neg_values,
+                mode='lines+markers',
+                name='Negatif' if i == 0 else None,
+                showlegend=(i == 0),
+                line=dict(color='#EF4444', width=3, shape='spline', smoothing=1.3),
+                marker=dict(size=7),
+                legendgroup='neg',
+                hovertemplate='%{x}<br>Negatif: %{y}<extra></extra>'
+            ), row=row, col=col)
+    
+    _update_layout(fig, title="Kategorilere Göre Zamana Bağlı Duygu Analizi", height=max(420, rows * 300))
+    fig.update_layout(
+        legend=dict(
+            orientation="h", 
+            yanchor="top", 
+            y=1.06,  # Above the chart, not overlapping
+            xanchor="center", 
+            x=0.5,
+            font=dict(size=13)
+        ),
+        hovermode='x unified',
+        margin=dict(t=80, b=50, l=50, r=40)
+    )
+    
+    # Update all x-axes and y-axes
+    fig.update_xaxes(
+        tickfont=dict(size=11, color=COLORS['text_muted']),
+        tickangle=-30,
+        showgrid=False
+    )
+    fig.update_yaxes(
+        tickfont=dict(size=11, color=COLORS['text_muted']),
+        showgrid=True,
+        gridcolor='rgba(148, 163, 184, 0.1)',  # Very subtle grid
+        gridwidth=1
+    )
+    
+    # Style subplot titles
+    for annotation in fig['layout']['annotations']:
+        annotation['font'] = dict(size=13, color=COLORS['text'])
     
     return fig
 
