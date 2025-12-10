@@ -9,6 +9,10 @@ import time
 from datetime import datetime
 import os
 import sys
+
+# Add src to path for cleaner structure
+sys.path.append(os.path.abspath("src"))
+
 import requests
 import plotly.graph_objects as go
 import plotly.express as px
