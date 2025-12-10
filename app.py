@@ -94,15 +94,14 @@ def inject_theme():
             color: {t["text_primary"]};
         }}
         
-        /* MAIN CONTAINER - Centered with flex for vertical alignment */
+        /* MAIN CONTAINER - Wider and centered */
         .block-container {{
-            padding-top: 3rem !important;
+            padding-top: 2.5rem !important;
             padding-bottom: 3rem !important;
-            max-width: 1100px !important;
+            max-width: 1280px !important;
             margin: 0 auto !important;
-            display: flex;
-            flex-direction: column;
-            min-height: calc(100vh - 100px);
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
         }}
         
         /* SIDEBAR - Improved spacing */
@@ -269,11 +268,11 @@ def inject_theme():
             background: rgba(239, 68, 68, 0.1) !important;
         }}
         
-        /* INPUTS - Fixed height */
+        /* INPUTS - Fixed height, more visible borders */
         .stTextInput > div > div > input,
         .stNumberInput > div > div > input {{
             background-color: #1E293B;
-            border: 1px solid {t["border"]};
+            border: 2px solid #334155;
             border-radius: 10px;
             color: {t["text_primary"]};
             padding: 0 16px;
@@ -285,7 +284,7 @@ def inject_theme():
         
         .stTextInput > div > div > input::placeholder {{
             color: #94A3B8;
-            opacity: 0.9;
+            opacity: 1;
         }}
         
         .stTextInput > div > div > input:focus,
@@ -299,6 +298,30 @@ def inject_theme():
         /* Number input container fix */
         .stNumberInput > div {{
             height: 48px !important;
+        }}
+        
+        /* INPUT GROUP - Unified look (Input + Number side by side) */
+        /* When columns are next to each other, merge their borders */
+        [data-testid="column"]:first-child .stTextInput > div > div > input {{
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: 1px solid #334155 !important;
+        }}
+        
+        [data-testid="column"]:last-child .stNumberInput > div > div > input {{
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+        }}
+        
+        /* Horizontal row alignment */
+        [data-testid="stHorizontalBlock"] {{
+            align-items: flex-end !important;
+        }}
+        
+        /* Main buttons same height */
+        .stButton > button {{
+            height: 48px !important;
+            min-height: 48px !important;
         }}
         
         /* RADIO BUTTONS - Segmented Control style */
@@ -343,26 +366,29 @@ def inject_theme():
             display: none !important;
         }}
         
-        /* METRICS */
+        /* METRICS - Better hierarchy */
         [data-testid="stMetricValue"] {{
-            font-size: 2.25rem !important;
+            font-size: 2rem !important;
             font-weight: 700 !important;
             background: linear-gradient(135deg, {t["accent"]}, #60A5FA);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            line-height: 1.2 !important;
         }}
         
         [data-testid="stMetricLabel"] {{
-            font-size: 0.8rem !important;
+            font-size: 0.7rem !important;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #CBD5E1 !important;
+            letter-spacing: 0.1em;
+            color: #94A3B8 !important;
+            opacity: 0.8;
+            margin-bottom: 4px !important;
         }}
         
-        /* TABS */
+        /* TABS - Blue underline for active */
         .stTabs [data-baseweb="tab-list"] {{
             gap: 8px;
-            border-bottom: 1px solid {t["border"]};
+            border-bottom: 2px solid {t["border"]};
             padding-bottom: 0px;
             background: transparent;
         }}
@@ -386,8 +412,9 @@ def inject_theme():
         
         .stTabs [aria-selected="true"] {{
             color: {t["accent"]} !important;
-            border-bottom: 3px solid {t["accent"]} !important;
-            background: rgba(59, 130, 246, 0.1);
+            border-bottom: 4px solid {t["accent"]} !important;
+            background: rgba(59, 130, 246, 0.08);
+            margin-bottom: -2px;
         }}
         
         /* EXPANDERS */
@@ -1109,11 +1136,12 @@ def display_tabs(comments, sentiment_results, title_context):
             # Use container with custom CSS
             with st.container():
                 st.markdown("""
-                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); 
+                <div style="background: #1E293B; 
                             border-left: 4px solid #10B981; 
                             border-radius: 8px; 
                             padding: 20px; 
-                            margin: 16px 0;">
+                            margin: 16px 0;
+                            border: 1px solid rgba(16, 185, 129, 0.2);">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                         <span style="font-size: 1.2rem;">📝</span>
                         <span style="font-size: 1.1rem; font-weight: 600; color: #10B981;">AI Generated Summary</span>
@@ -1372,7 +1400,7 @@ def page_battle():
             )
             st.plotly_chart(fig, use_container_width=True)
             
-            st.caption("📊 **Veri:** Her kategori için zamana bağlı pozitif (mavi) ve negatif (turuncu) yorum sayıları.")
+            st.caption("📊 **Veri:** Her kategori için zamana bağlı pozitif (yeşil) ve negatif (kırmızı) yorum sayıları.")
         
         with tab4:
             fig = create_category_heatmap(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))

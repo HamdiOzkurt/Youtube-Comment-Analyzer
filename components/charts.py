@@ -721,7 +721,7 @@ def create_category_pie_grid(categories: Dict[str, Dict], v1_name: str, v2_name:
     
     # CONSISTENT COLORS: Green for matched, Gray for other
     MATCHED_COLOR = '#10B981'  # Emerald green - positive/matched
-    OTHER_COLOR = '#475569'    # Slate gray - neutral/other
+    OTHER_COLOR = '#FF0000'    # Slate gray - neutral/other
     
     for i, cat_name in enumerate(cat_names):
         cat_data = categories[cat_name]
@@ -753,24 +753,24 @@ def create_category_pie_grid(categories: Dict[str, Dict], v1_name: str, v2_name:
             hovertemplate=f'<b>{cat_name[:20]}</b><br>%{{label}}: %{{value}} yorum<br>(%{{percent}})<extra></extra>'
         ), row=row, col=col)
     
-    _update_layout(fig, title="Kategorilere Göre Eşleşme Dağılımı", height=max(380, rows * 280))
+    _update_layout(fig, title="Kategorilere Göre Eşleşme Dağılımı", height=max(400, rows * 300))
     fig.update_layout(
         showlegend=True,
         legend=dict(
             orientation="h", 
             yanchor="top", 
-            y=1.08,
+            y=-0.05,  # BELOW the charts
             xanchor="center", 
             x=0.5,
             font=dict(size=12)
         ),
-        margin=dict(t=80, b=40, l=40, r=40)
+        margin=dict(t=60, b=60, l=60, r=60)  # More padding all around
     )
     
-    # Update subplot titles styling with more margin
+    # Update subplot titles - push them higher above charts
     for annotation in fig['layout']['annotations']:
-        annotation['font'] = dict(size=13, color=COLORS['text'])
-        annotation['y'] = annotation['y'] + 0.02  # Push title up a bit
+        annotation['font'] = dict(size=14, color=COLORS['text'])
+        annotation['y'] = annotation['y'] + 0.05  # Push title higher
     
     return fig
 
@@ -785,8 +785,8 @@ def create_category_temporal_chart(
     v2_name: str
 ) -> go.Figure:
     """
-    Create line charts showing positive/negative sentiment trends over time for each category.
-    Green line = Positive, Red line = Negative (universal color coding)
+    Create BAR CHARTS showing positive/negative sentiment counts over time for each category.
+    Green bars = Positive, Red bars = Negative
     """
     from plotly.subplots import make_subplots
     from datetime import datetime
@@ -806,16 +806,18 @@ def create_category_temporal_chart(
     fig = make_subplots(
         rows=rows, cols=cols,
         subplot_titles=[f"{c[:25]}" for c in cat_names],
-        vertical_spacing=0.18,
+        vertical_spacing=0.20,
         horizontal_spacing=0.12
     )
     
-    # Current date for filtering future dates
-    current_year = datetime.now().year
+    # Current date for filtering - STRICT filter
+    now = datetime.now()
+    current_year = now.year
+    current_month = now.month
     
     # Process sentiment by time for each video
     def get_sentiment_by_date(comments, sentiments):
-        """Group sentiments by date, filtering out future dates"""
+        """Group sentiments by date, STRICTLY filtering out future dates"""
         date_sentiment = {}
         for i, c in enumerate(comments):
             if i >= len(sentiments):
@@ -824,11 +826,23 @@ def create_category_temporal_chart(
             ts = c.get('timestamp')
             if ts:
                 try:
-                    dt = datetime.fromtimestamp(ts)
-                    # Filter out future dates (timestamp error protection)
+                    # Handle both Unix timestamp and string dates
+                    if isinstance(ts, (int, float)):
+                        dt = datetime.fromtimestamp(ts)
+                    else:
+                        continue  # Skip if not a valid timestamp
+                    
+                    # STRICT filter: No future dates at all
                     if dt.year > current_year:
                         continue
-                    date = dt.strftime('%Y-%m')  # Group by month for smoother chart
+                    if dt.year == current_year and dt.month > current_month:
+                        continue
+                    
+                    # Only use valid years (2020-current)
+                    if dt.year < 2020:
+                        continue
+                        
+                    date = dt.strftime('%Y-%m')
                 except:
                     continue
                 
@@ -850,108 +864,83 @@ def create_category_temporal_chart(
     v1_date_data = get_sentiment_by_date(v1_comments, v1_sentiments if v1_sentiments else [])
     v2_date_data = get_sentiment_by_date(v2_comments, v2_sentiments if v2_sentiments else [])
     
-    # Combine all dates and sort
+    # Combine all dates and sort, filter to only dates with data
     all_dates = sorted(set(list(v1_date_data.keys()) + list(v2_date_data.keys())))
     
-    if not all_dates or len(all_dates) < 2:
-        # Fallback: use comment order instead of time
-        max_len = min(max(len(v1_comments), len(v2_comments)), 20)
-        all_dates = [f"Yorum {i+1}" for i in range(max_len)]
+    # If no valid dates, show message
+    if not all_dates:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Geçerli tarih verisi bulunamadı",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color=COLORS['text_muted'])
+        )
+        _update_layout(fig, title="Zaman Trendi", height=300)
+        return fig
+    
+    for i, cat_name in enumerate(cat_names):
+        row = i // cols + 1
+        col = i % cols + 1
         
-        for i, cat_name in enumerate(cat_names):
-            row = i // cols + 1
-            col = i % cols + 1
-            
-            # Simple alternating values for fallback
-            pos_values = [(3 + (j % 3)) for j in range(len(all_dates))]
-            neg_values = [(2 + (j % 2)) for j in range(len(all_dates))]
-            
-            fig.add_trace(go.Scatter(
-                x=all_dates,
-                y=pos_values,
-                mode='lines',
-                name='Pozitif' if i == 0 else None,
-                showlegend=(i == 0),
-                line=dict(color='#10B981', width=3, shape='spline', smoothing=1.3),
-                legendgroup='pos',
-                hovertemplate='%{y} pozitif<extra></extra>'
-            ), row=row, col=col)
-            
-            fig.add_trace(go.Scatter(
-                x=all_dates,
-                y=neg_values,
-                mode='lines',
-                name='Negatif' if i == 0 else None,
-                showlegend=(i == 0),
-                line=dict(color='#EF4444', width=3, shape='spline', smoothing=1.3),
-                legendgroup='neg',
-                hovertemplate='%{y} negatif<extra></extra>'
-            ), row=row, col=col)
-    else:
-        for i, cat_name in enumerate(cat_names):
-            row = i // cols + 1
-            col = i % cols + 1
-            
-            # Calculate positive/negative for this category over time
-            pos_values = []
-            neg_values = []
-            
-            for date in all_dates:
-                v1_data = v1_date_data.get(date, {'pos': 0, 'neg': 0})
-                v2_data = v2_date_data.get(date, {'pos': 0, 'neg': 0})
-                pos_values.append(v1_data['pos'] + v2_data['pos'])
-                neg_values.append(v1_data['neg'] + v2_data['neg'])
-            
-            # Positive line - GREEN (universal positive color)
-            fig.add_trace(go.Scatter(
-                x=all_dates,
-                y=pos_values,
-                mode='lines+markers',
-                name='Pozitif' if i == 0 else None,
-                showlegend=(i == 0),
-                line=dict(color='#10B981', width=3, shape='spline', smoothing=1.3),
-                marker=dict(size=7),
-                legendgroup='pos',
-                hovertemplate='%{x}<br>Pozitif: %{y}<extra></extra>'
-            ), row=row, col=col)
-            
-            # Negative line - RED (universal negative color)
-            fig.add_trace(go.Scatter(
-                x=all_dates,
-                y=neg_values,
-                mode='lines+markers',
-                name='Negatif' if i == 0 else None,
-                showlegend=(i == 0),
-                line=dict(color='#EF4444', width=3, shape='spline', smoothing=1.3),
-                marker=dict(size=7),
-                legendgroup='neg',
-                hovertemplate='%{x}<br>Negatif: %{y}<extra></extra>'
-            ), row=row, col=col)
+        # Calculate positive/negative for this category over time
+        pos_values = []
+        neg_values = []
+        
+        for date in all_dates:
+            v1_data = v1_date_data.get(date, {'pos': 0, 'neg': 0})
+            v2_data = v2_date_data.get(date, {'pos': 0, 'neg': 0})
+            pos_values.append(v1_data['pos'] + v2_data['pos'])
+            neg_values.append(v1_data['neg'] + v2_data['neg'])
+        
+        # Positive BARS - GREEN
+        fig.add_trace(go.Bar(
+            x=all_dates,
+            y=pos_values,
+            name='Pozitif' if i == 0 else None,
+            showlegend=(i == 0),
+            marker=dict(color='#10B981', line=dict(width=0)),
+            legendgroup='pos',
+            hovertemplate='%{x}<br>Pozitif: %{y}<extra></extra>'
+        ), row=row, col=col)
+        
+        # Negative BARS - RED
+        fig.add_trace(go.Bar(
+            x=all_dates,
+            y=neg_values,
+            name='Negatif' if i == 0 else None,
+            showlegend=(i == 0),
+            marker=dict(color='#EF4444', line=dict(width=0)),
+            legendgroup='neg',
+            hovertemplate='%{x}<br>Negatif: %{y}<extra></extra>'
+        ), row=row, col=col)
     
     _update_layout(fig, title="Kategorilere Göre Zamana Bağlı Duygu Analizi", height=max(420, rows * 300))
     fig.update_layout(
+        barmode='group',  # Side by side bars
+        bargap=0.15,
+        bargroupgap=0.1,
         legend=dict(
             orientation="h", 
             yanchor="top", 
-            y=1.06,  # Above the chart, not overlapping
+            y=1.08,
             xanchor="center", 
             x=0.5,
             font=dict(size=13)
         ),
         hovermode='x unified',
-        margin=dict(t=80, b=50, l=50, r=40)
+        margin=dict(t=110, b=60, l=50, r=40)
     )
     
     # Update all x-axes and y-axes
     fig.update_xaxes(
-        tickfont=dict(size=11, color=COLORS['text_muted']),
-        tickangle=-30,
+        tickfont=dict(size=10, color=COLORS['text_muted']),
+        tickangle=-45,
         showgrid=False
     )
     fig.update_yaxes(
         tickfont=dict(size=11, color=COLORS['text_muted']),
         showgrid=True,
-        gridcolor='rgba(148, 163, 184, 0.1)',  # Very subtle grid
+        gridcolor='rgba(148, 163, 184, 0.1)',
         gridwidth=1
     )
     
