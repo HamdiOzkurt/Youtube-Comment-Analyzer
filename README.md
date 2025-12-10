@@ -1,4 +1,4 @@
-# 🎬 YouTube Comment Analyzer
+#YouTube Comment Analyzer
 
 YouTube videolarından toplu yorum çekme ve makine öğrenmesi ile duygu analizi & sınıflandırma yapan Python projesi.
 
@@ -7,7 +7,7 @@ YouTube videolarından toplu yorum çekme ve makine öğrenmesi ile duygu analiz
 ![BERT](https://img.shields.io/badge/BERT-Turkish-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-## 📋 Özellikler
+##Özellikler
 
 - 🔍 **Otomatik Video Arama**: Selenium ile YouTube'da arama yaparak video URL'lerini toplar
 - 💬 **Toplu Yorum Çekme**: yt-dlp ile hızlı ve paralel yorum çekme
@@ -19,14 +19,14 @@ YouTube videolarından toplu yorum çekme ve makine öğrenmesi ile duygu analiz
 - 😊 **Duygu Analizi**: BERT tabanlı Türkçe duygu analizi (Positive/Negative)
 - 📊 **Çoklu Model Karşılaştırma**: LogisticRegression, RandomForest, XGBoost, LightGBM, CatBoost ve daha fazlası
 
-## 🛠️ Kurulum
+##Kurulum
 
 ### Gereksinimler
 - Python 3.10+
 - Chrome tarayıcı (Selenium için)
 - CUDA destekli GPU (opsiyonel, duygu analizi için hızlandırma)
 
-### Adımlar
+###Adımlar
 
 ```bash
 # Repo'yu klonla
@@ -49,7 +49,7 @@ pip install -r requirements.txt
 pip install scikit-learn xgboost lightgbm catboost transformers torch
 ```
 
-## 🚀 Kullanım
+##Kullanım
 
 ### 1. Yorum Çekme (Interactive Mode)
 
@@ -79,7 +79,7 @@ Ardından:
 - BERT ile duygu analizi
 - Sonuçları Excel'e kaydetme
 
-## 📁 Proje Yapısı
+##Proje Yapısı
 
 ```
 youtube-comment-analyzer/
@@ -95,7 +95,7 @@ youtube-comment-analyzer/
 └── output/                    # Çıktı dosyaları (CSV, JSON, Excel)
 ```
 
-## 🤖 Kullanılan Modeller
+##Kullanılan Modeller
 
 ### Sınıflandırma Modelleri
 | Model | Açıklama |
@@ -112,18 +112,18 @@ youtube-comment-analyzer/
 - **Model**: `savasy/bert-base-turkish-sentiment-cased`
 - **Çıktı**: Positive / Negative + Confidence Score
 
-## 📊 Örnek Çıktı
+##Örnek Çıktı
 
 ```
-📹 Toplam Video: 50
-💬 Toplam Yorum: 130,000+
-📁 Kaydedilen Dosyalar:
+Toplam Video: 50
+Toplam Yorum: 130,000+
+Kaydedilen Dosyalar:
    • CSV: muslum_gurses_tr_20251203.csv
    • JSON: muslum_gurses_tr_20251203.json
    • EXCEL: muslum_gurses_tr_20251203.xlsx
 ```
 
-## 🔧 Konfigürasyon
+##Konfigürasyon
 
 `config.py` dosyasından ayarları özelleştirebilirsiniz:
 
@@ -138,13 +138,13 @@ MAX_COMMENTS_PER_VIDEO = 100
 OUTPUT_DIR = "output"
 ```
 
-## 📝 Notlar
+##Notlar
 
 - Büyük veri setleri için GPU kullanımı önerilir
 - YouTube API limitlerine dikkat edin
 - Yorumlar Türkçe için optimize edilmiştir
 
-## 🤝 Katkıda Bulunma
+##Katkıda Bulunma
 
 1. Fork'layın
 2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
@@ -152,11 +152,11 @@ OUTPUT_DIR = "output"
 4. Push'layın (`git push origin feature/amazing-feature`)
 5. Pull Request açın
 
-## 📄 Lisans
+##Lisans
 
 Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
-## 👤 Geliştirici
+##Geliştirici
 
 **Hamdi Özkurt**
 - GitHub: [@HamdiOzkurt](https://github.com/HamdiOzkurt)
@@ -164,4 +164,4 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 ---
 
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
