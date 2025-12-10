@@ -84,15 +84,29 @@ class CommentWorker:
         
     def fetch_comments_from_url(self, video_url):
         """Tek bir videodan yorum çeker"""
+        # Clean URL from playlist parameters
+        if '&list=' in video_url:
+            video_url = video_url.split('&list=')[0]
+        if '?list=' in video_url:
+            # Keep video ID, remove playlist
+            video_url = video_url.split('?list=')[0]
+            if 'watch?v=' not in video_url and 'youtu.be/' in video_url:
+                pass  # Short URL format is fine
+        
+        # Calculate comment limit - includes replies
+        comment_limit = str(self.max_comments_per_video) if self.max_comments_per_video else 'all'
+        
         ydl_opts = {
             'skip_download': True,
             'getcomments': True,
             'quiet': True,
             'no_warnings': True,
+            'noplaylist': True,  # Don't process playlists
             'extractor_args': {
                 'youtube': {
-                    'max_comments': ['all'] if self.max_comments_per_video is None 
-                                   else [str(self.max_comments_per_video)]
+                    # Format: max_comments,max_parents,max_replies_per_thread,max_replies
+                    # Using 'all' for replies to get all comments including thread replies
+                    'max_comments': [comment_limit, 'all', 'all', 'all']
                 }
             },
         }
@@ -113,6 +127,7 @@ class CommentWorker:
                     'begeni': info.get('like_count', 0),
                     'sure': info.get('duration', 0),
                     'yuklenme_tarihi': info.get('upload_date', ''),
+                    'aciklama': info.get('description', ''),
                     'yorumlar': []
                 }
                 

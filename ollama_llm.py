@@ -154,6 +154,31 @@ Kısa ve öz yanıt ver. Sentiment analizi sonucuyla uyumlu bir özet yaz!"""
         except:
             return []
 
+    def summarize_video_description(self, description: str) -> str:
+        """Video açıklamasını özetle ve içeriği çıkar"""
+        if not description:
+            return "Video açıklaması bulunamadı."
+        
+        prompt = f"""Aşağıdaki YouTube video açıklamasını analiz et ve videonun konusunu akıcı bir dille özetle.
+        
+        AÇIKLAMA:
+        {description[:2500]}
+        
+        GÖREV:
+        Bu videonun ne hakkında olduğunu 3-4 cümleyi geçmeyecek şekilde, tek bir paragraf halinde özetle.
+        
+        KURALLAR:
+        - Kesinlikle madde işareti (bullet point) kullanma.
+        - Listeleme yapma.
+        - Akıcı bir Türkçe kullan.
+        - Sadece özeti yaz, "İşte özet:" gibi başlangıçlar yapma.
+        """
+        
+        try:
+            return self._call_ollama(prompt, max_tokens=300)
+        except Exception as e:
+            return f"Özetlenemedi: {e}"
+
 
 # Test
 if __name__ == '__main__':

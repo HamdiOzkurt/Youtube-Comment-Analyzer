@@ -56,30 +56,30 @@ except ImportError as e:
     st.stop()
 
 
-# ============= THEME CONFIGURATION =============
+# ============= THEME CONFIGURATION (LIGHT MODE) =============
 THEME = {
-    "bg_color": "#0F172A",  # Slate 900
-    "main_bg": "#0F172A",
-    "sidebar_bg": "#1E293B", # Slate 800
-    "card_bg": "rgba(30, 41, 59, 0.7)", # Transparent Slate 800
-    "card_bg_solid": "#1E293B",
-    "text_primary": "#F8FAFC", # Slate 50
-    "text_secondary": "#94A3B8", # Slate 400
-    "text_muted": "#64748B", # Slate 500
-    "accent": "#3B82F6", # Blue 500
-    "accent_secondary": "#8B5CF6", # Purple 500
-    "accent_hover": "#2563EB", # Blue 600
-    "success": "#10B981", # Emerald 500
-    "error": "#EF4444", # Red 500
-    "warning": "#F59E0B", # Amber 500
-    "border": "rgba(148, 163, 184, 0.1)",
-    "input_bg": "rgba(30, 41, 59, 0.5)",
-    "hover_bg": "rgba(59, 130, 246, 0.1)"
+    "bg_color": "#FFFFFF",           # Pure White
+    "main_bg": "#F8F9FA",            # Light Gray Background
+    "sidebar_bg": "#FFFFFF",         # White Sidebar
+    "card_bg": "#FFFFFF",            # White Cards
+    "card_bg_solid": "#FFFFFF",
+    "text_primary": "#1F2937",       # Dark Gray (almost black)
+    "text_secondary": "#4B5563",     # Medium Gray
+    "text_muted": "#6B7280",         # Light Gray Text
+    "accent": "#4169E1",             # Royal Blue (Logo Color)
+    "accent_secondary": "#6366F1",   # Indigo
+    "accent_hover": "#3B5ED9",       # Darker Royal Blue
+    "success": "#059669",            # Emerald 600 (darker for light bg)
+    "error": "#DC2626",              # Red 600
+    "warning": "#D97706",            # Amber 600
+    "border": "rgba(0, 0, 0, 0.08)", # Light border
+    "input_bg": "#F9FAFB",           # Very light gray input
+    "hover_bg": "rgba(65, 105, 225, 0.08)"  # Light Royal Blue hover
 }
 
 
 def inject_theme():
-    """Professional UI Theme Injection"""
+    """Professional UI Theme Injection - LIGHT MODE"""
     t = THEME
     
     st.markdown(f"""
@@ -87,7 +87,7 @@ def inject_theme():
         /* IMPORT FONTS */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        /* GLOBAL RESET */
+        /* GLOBAL RESET - LIGHT MODE */
         .stApp {{
             background-color: {t["main_bg"]};
             font-family: 'Inter', sans-serif;
@@ -104,11 +104,12 @@ def inject_theme():
             padding-right: 2rem !important;
         }}
         
-        /* SIDEBAR - Improved spacing */
+        /* SIDEBAR - Light Mode with clear separation */
         [data-testid="stSidebar"] {{
-            background-color: {t["sidebar_bg"]};
-            border-right: 1px solid {t["border"]};
+            background-color: #F8F9FA;
+            border-right: 1px solid #E5E7EB;
             padding-top: 1rem;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.03);
         }}
         
         /* Sidebar buttons - More spacing between items */
@@ -133,15 +134,15 @@ def inject_theme():
         }}
         
         [data-testid="stSidebar"] .stButton > button:hover {{
-            background: rgba(59, 130, 246, 0.1) !important;
+            background: {t["hover_bg"]} !important;
             color: {t["accent"]} !important;
             border-left: 4px solid {t["accent"]} !important;
             padding-left: 14px !important;
         }}
         
-        /* Active sidebar button - Rounded corners matching sidebar */
+        /* Active sidebar button */
         [data-testid="stSidebar"] .stButton > button[kind="primary"] {{
-            background: rgba(59, 130, 246, 0.15) !important;
+            background: {t["hover_bg"]} !important;
             color: {t["accent"]} !important;
             border-left: 4px solid {t["accent"]} !important;
             border-radius: 10px !important;
@@ -152,7 +153,7 @@ def inject_theme():
             display: none !important;
         }}
         
-        /* TYPOGRAPHY */
+        /* TYPOGRAPHY - Light Mode */
         h1, h2, h3, h4, h5, h6 {{
             color: {t["text_primary"]} !important;
             font-weight: 600 !important;
@@ -165,29 +166,100 @@ def inject_theme():
 
         .small-text {{
             font-size: 0.875rem;
-            color: #CBD5E1;
+            color: {t["text_muted"]};
         }}
         
-        /* Captions/hints - better contrast */
+        /* Captions/hints - Light Mode readable */
         .stCaption, [data-testid="stCaption"] {{
-            color: #CBD5E1 !important;
+            color: {t["text_muted"]} !important;
         }}
         
-        /* CARDS & CONTAINERS - Max width for home cards */
+        /* CARDS & CONTAINERS - Light Mode with enhanced SHADOWS */
         .glass-card {{
-            background: {t["card_bg"]};
-            backdrop-filter: blur(12px);
-            border: 1px solid {t["border"]};
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }}
         
         .glass-card:hover {{
             border-color: {t["accent"]};
-            transform: translateY(-3px);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }}
+        
+        /* KPI/METRIC CARDS - Modern Light Style */
+        .metric-card {{
+            background: {t["card_bg"]};
+            border: 1px solid {t["border"]};
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }}
+        
+        .metric-card:hover {{
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }}
+        
+        /* COMMENT CARD - Styled for Data Feed */
+        .comment-card {{
+            background: {t["card_bg"]};
+            border: 1px solid {t["border"]};
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }}
+        
+        .comment-card:hover {{
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            border-color: {t["accent"]};
+        }}
+        
+        .comment-author {{
+            color: {t["accent"]};
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }}
+        
+        .comment-text {{
+            color: {t["text_primary"]};
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }}
+        
+        .comment-meta {{
+            color: {t["text_muted"]};
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }}
+        
+        /* AI SUMMARY BOX - Light Mode */
+        .ai-summary-box {{
+            background: linear-gradient(135deg, rgba(65, 105, 225, 0.05), rgba(99, 102, 241, 0.05));
+            border: 1px solid rgba(65, 105, 225, 0.2);
+            border-left: 4px solid {t["accent"]};
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }}
+        
+        .ai-summary-box h4 {{
+            color: {t["accent"]} !important;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }}
+        
+        .ai-summary-box p, .ai-summary-box li {{
+            color: {t["text_primary"]};
+            line-height: 1.7;
         }}
         
         /* Home page cards container limit */
@@ -196,7 +268,7 @@ def inject_theme():
             margin: 0 auto;
         }}
         
-        /* FORM CONTAINER - Centered card */
+        /* FORM CONTAINER - Light Mode */
         .form-container {{
             max-width: 800px;
             margin: 0 auto;
@@ -204,9 +276,10 @@ def inject_theme():
             border-radius: 16px;
             padding: 32px;
             border: 1px solid {t["border"]};
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         }}
         
-        /* BUTTONS - Main */
+        /* BUTTONS - Royal Blue */
         .stButton > button {{
             background: linear-gradient(135deg, {t["accent"]} 0%, {t["accent_hover"]} 100%);
             color: white;
@@ -218,14 +291,14 @@ def inject_theme():
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-transform: uppercase;
             font-size: 0.875rem;
-            box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px -3px rgba(65, 105, 225, 0.3);
             max-width: 600px;
             height: 48px;
         }}
         
         .stButton > button:hover:not(:disabled) {{
             filter: brightness(1.1);
-            box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 8px 25px -5px rgba(65, 105, 225, 0.4);
             transform: translateY(-2px);
         }}
         
@@ -249,7 +322,7 @@ def inject_theme():
         }}
 
         [data-testid="baseButton-secondary"]:hover {{
-            background: rgba(59, 130, 246, 0.1) !important;
+            background: {t["hover_bg"]} !important;
             border-color: {t["accent"]} !important;
             transform: translateY(-2px) !important;
         }}
@@ -265,47 +338,154 @@ def inject_theme():
         }}
         
         .delete-btn button:hover {{
-            background: rgba(239, 68, 68, 0.1) !important;
+            background: rgba(220, 38, 38, 0.08) !important;
         }}
         
-        /* INPUTS - Fixed height, more visible borders */
+        /* ============================================= */
+        /* ULTRA AGGRESSIVE INPUT STYLES - FORCE WHITE  */
+        /* ============================================= */
+        
+        /* Target ALL possible input elements */
+        input, 
+        textarea,
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="password"],
+        input[type="search"],
+        input[type="url"],
+        input[type="tel"] {{
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E0E0E0 !important;
+            color: #333333 !important;
+            -webkit-text-fill-color: #333333 !important;
+        }}
+        
+        /* Streamlit specific - Text Input */
+        .stTextInput input,
         .stTextInput > div > div > input,
-        .stNumberInput > div > div > input {{
-            background-color: #1E293B;
-            border: 2px solid #334155;
-            border-radius: 10px;
-            color: {t["text_primary"]};
-            padding: 0 16px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            height: 48px !important;
-            min-height: 48px !important;
+        [data-testid="stTextInput"] input,
+        [data-baseweb="input"] input {{
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E0E0E0 !important;
+            border-radius: 8px !important;
+            color: #333333 !important;
+            -webkit-text-fill-color: #333333 !important;
+            padding: 12px 16px !important;
+            font-size: 1rem !important;
+            height: 46px !important;
+            min-height: 46px !important;
         }}
         
-        .stTextInput > div > div > input::placeholder {{
-            color: #94A3B8;
-            opacity: 1;
+        /* Streamlit specific - Number Input (THE PROBLEM) */
+        .stNumberInput input,
+        .stNumberInput > div > div > input,
+        .stNumberInput input[type="number"],
+        [data-testid="stNumberInput"] input,
+        [data-testid="stNumberInput-StepUp"],
+        [data-testid="stNumberInput-StepDown"],
+        [data-baseweb="input"] input[type="number"],
+        div[data-baseweb="base-input"] input {{
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E0E0E0 !important;
+            border-radius: 8px !important;
+            color: #333333 !important;
+            -webkit-text-fill-color: #333333 !important;
+            padding: 12px 16px !important;
+            font-size: 1rem !important;
+            height: 46px !important;
         }}
         
-        .stTextInput > div > div > input:focus,
-        .stNumberInput > div > div > input:focus {{
-            border-color: {t["accent"]};
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            outline: none;
-            background-color: #1E293B;
+        /* Number input container and wrapper */
+        .stNumberInput > div,
+        .stNumberInput [data-baseweb="input"],
+        [data-testid="stNumberInput"] > div {{
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border-radius: 8px !important;
         }}
         
-        /* Number input container fix */
-        .stNumberInput > div {{
-            height: 48px !important;
+        /* BaseWeb input wrapper (Streamlit uses this) */
+        [data-baseweb="input"],
+        [data-baseweb="base-input"] {{
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E0E0E0 !important;
+            border-radius: 8px !important;
         }}
         
-        /* INPUT GROUP - Unified look (Input + Number side by side) */
-        /* When columns are next to each other, merge their borders */
+        /* Number input step buttons */
+        .stNumberInput button,
+        [data-testid="stNumberInput"] button {{
+            background-color: #F3F4F6 !important;
+            border: 1px solid #E0E0E0 !important;
+            color: #333333 !important;
+        }}
+        
+        .stNumberInput button:hover {{
+            background-color: #E5E7EB !important;
+        }}
+        
+        /* TextArea */
+        .stTextArea textarea,
+        [data-testid="stTextArea"] textarea {{
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E0E0E0 !important;
+            border-radius: 8px !important;
+            color: #333333 !important;
+            -webkit-text-fill-color: #333333 !important;
+        }}
+        
+        /* Input placeholder text */
+        input::placeholder,
+        textarea::placeholder {{
+            color: #9CA3AF !important;
+            opacity: 1 !important;
+            -webkit-text-fill-color: #9CA3AF !important;
+        }}
+        
+        /* Focus states - Blue border */
+        input:focus,
+        textarea:focus,
+        .stTextInput input:focus,
+        .stNumberInput input:focus,
+        [data-baseweb="input"]:focus-within {{
+            border-color: #4A90E2 !important;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15) !important;
+            outline: none !important;
+            background-color: #FFFFFF !important;
+        }}
+        
+        /* Remove any dark overlays */
+        .stTextInput > div,
+        .stNumberInput > div,
+        [data-testid="stTextInput"] > div,
+        [data-testid="stNumberInput"] > div {{
+            background-color: transparent !important;
+        }}
+        
+        /* Selectbox */
+        .stSelectbox > div > div,
+        [data-testid="stSelectbox"] > div > div {{
+            background-color: #FFFFFF !important;
+            border: 1px solid #E0E0E0 !important;
+            border-radius: 8px !important;
+            color: #333333 !important;
+        }}
+        
+        /* ============================================= */
+        /* END INPUT STYLES                             */
+        /* ============================================= */
+        
+        /* INPUT GROUP - Unified look */
         [data-testid="column"]:first-child .stTextInput > div > div > input {{
             border-top-right-radius: 0 !important;
             border-bottom-right-radius: 0 !important;
-            border-right: 1px solid #334155 !important;
+            border-right: 1px solid #E0E0E0 !important;
         }}
         
         [data-testid="column"]:last-child .stNumberInput > div > div > input {{
@@ -324,55 +504,65 @@ def inject_theme():
             min-height: 48px !important;
         }}
         
-        /* RADIO BUTTONS - Segmented Control style */
+        /* RADIO BUTTONS - Modern Segmented Control */
         .stRadio > div {{
-            display: inline-flex;
-            gap: 0;
-            background: #1E293B;
-            border-radius: 10px;
-            padding: 4px;
-            border: 1px solid {t["border"]};
-            max-width: 400px;
+            display: inline-flex !important;
+            gap: 4px !important;
+            background: #F3F4F6 !important;
+            border-radius: 24px !important;
+            padding: 4px !important;
+            border: 1px solid #E5E7EB !important;
+            max-width: 450px !important;
         }}
         
         .stRadio > div > label {{
-            flex: 1;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: {t["text_secondary"]};
+            flex: 1 !important;
+            padding: 12px 24px !important;
+            border-radius: 20px !important;
+            cursor: pointer !important;
+            transition: all 0.25s ease !important;
+            text-align: center !important;
+            font-weight: 500 !important;
+            font-size: 0.9rem !important;
+            color: #4B5563 !important;
             margin: 0 !important;
-            white-space: nowrap;
+            white-space: nowrap !important;
+            background: transparent !important;
         }}
         
         .stRadio > div > label:hover {{
-            background: rgba(59, 130, 246, 0.1);
-            color: {t["accent"]};
+            background: rgba(65, 105, 225, 0.08) !important;
+            color: {t["accent"]} !important;
         }}
         
-        .stRadio > div > label[data-checked="true"],
-        .stRadio > div input:checked + div {{
-            background: linear-gradient(135deg, {t["accent"]}, {t["accent_hover"]});
+        /* Selected state for radio - Blue background, white text */
+        .stRadio > div > label[data-baseweb="radio"] input:checked + div,
+        .stRadio [data-baseweb="radio"] > div:first-child[aria-checked="true"],
+        .stRadio div[role="radiogroup"] > label:has(input:checked) {{
+            background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
             color: white !important;
-            box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px -2px rgba(74, 144, 226, 0.4) !important;
         }}
         
-        /* Hide radio button circles */
-        .stRadio > div > label > div:first-child {{
+        /* Alternative selector for checked state */
+        .stRadio label[data-baseweb="radio"]:has(input:checked) {{
+            background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px -2px rgba(74, 144, 226, 0.4) !important;
+        }}
+        
+        /* Hide the actual radio circle */
+        .stRadio > div > label > div:first-child,
+        .stRadio [data-baseweb="radio"] > div > div:first-child {{
             display: none !important;
         }}
         
-        /* METRICS - Better hierarchy */
+        /* METRICS - Light Mode */
         [data-testid="stMetricValue"] {{
             font-size: 2rem !important;
             font-weight: 700 !important;
-            background: linear-gradient(135deg, {t["accent"]}, #60A5FA);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: {t["accent"]} !important;
+            -webkit-text-fill-color: {t["accent"]} !important;
             line-height: 1.2 !important;
         }}
         
@@ -380,12 +570,12 @@ def inject_theme():
             font-size: 0.7rem !important;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: #94A3B8 !important;
+            color: {t["text_muted"]} !important;
             opacity: 0.8;
             margin-bottom: 4px !important;
         }}
         
-        /* TABS - Blue underline for active */
+        /* TABS - Light Mode */
         .stTabs [data-baseweb="tab-list"] {{
             gap: 8px;
             border-bottom: 2px solid {t["border"]};
@@ -406,20 +596,20 @@ def inject_theme():
         }}
         
         .stTabs [data-baseweb="tab"]:hover {{
-            background: rgba(59, 130, 246, 0.1);
+            background: {t["hover_bg"]};
             color: {t["accent"]};
         }}
         
         .stTabs [aria-selected="true"] {{
             color: {t["accent"]} !important;
             border-bottom: 4px solid {t["accent"]} !important;
-            background: rgba(59, 130, 246, 0.08);
+            background: {t["hover_bg"]};
             margin-bottom: -2px;
         }}
         
-        /* EXPANDERS */
+        /* EXPANDERS - Light Mode */
         .streamlit-expanderHeader {{
-            background: rgba(30, 41, 59, 0.5);
+            background: {t["input_bg"]};
             border-radius: 10px;
             border: 1px solid {t["border"]};
             transition: all 0.2s ease;
@@ -427,12 +617,12 @@ def inject_theme():
         
         .streamlit-expanderHeader:hover {{
             border-color: {t["accent"]};
-            background: rgba(59, 130, 246, 0.1);
+            background: {t["hover_bg"]};
         }}
         
         /* PROGRESS BAR */
         .stProgress > div > div > div > div {{
-            background-image: linear-gradient(to right, {t["accent"]}, #60A5FA);
+            background-image: linear-gradient(to right, {t["accent"]}, {t["accent_secondary"]});
             border-radius: 10px;
         }}
         
@@ -441,11 +631,12 @@ def inject_theme():
             border-color: {t["accent"]} transparent transparent transparent !important;
         }}
 
-        /* DATAFRAMES */
+        /* DATAFRAMES - Light Mode */
         [data-testid="stDataFrame"] {{
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid {t["border"]};
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }}
 
         /* HIDE DEFAULT ELEMENTS */
@@ -462,10 +653,10 @@ def inject_theme():
             display: flex !important;
         }}
         
-        /* TIP BOX - Empty state filler */
+        /* TIP BOX - Light Mode */
         .tip-box {{
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: linear-gradient(135deg, rgba(65, 105, 225, 0.06), rgba(99, 102, 241, 0.06));
+            border: 1px solid rgba(65, 105, 225, 0.15);
             border-radius: 12px;
             padding: 20px;
             margin: 20px 0;
@@ -476,7 +667,7 @@ def inject_theme():
             margin-bottom: 12px;
         }}
         
-        /* FEATURE CARDS */
+        /* FEATURE CARDS - Light Mode */
         .feature-card {{
             background: {t["card_bg"]};
             border: 1px solid {t["border"]};
@@ -484,17 +675,47 @@ def inject_theme():
             padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }}
         
         .feature-card:hover {{
             transform: translateY(-5px);
             border-color: {t["accent"]};
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.3);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
         }}
         
         .feature-icon {{
             font-size: 2.5rem;
             margin-bottom: 12px;
+        }}
+        
+        /* SENTIMENT STATUS BADGES */
+        .sentiment-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }}
+        
+        .sentiment-badge.positive {{
+            background: rgba(5, 150, 105, 0.1);
+            color: {t["success"]};
+            border: 1px solid rgba(5, 150, 105, 0.3);
+        }}
+        
+        .sentiment-badge.negative {{
+            background: rgba(220, 38, 38, 0.1);
+            color: {t["error"]};
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }}
+        
+        .sentiment-badge.neutral {{
+            background: rgba(107, 114, 128, 0.1);
+            color: {t["text_muted"]};
+            border: 1px solid rgba(107, 114, 128, 0.3);
         }}
         
     </style>
@@ -528,22 +749,22 @@ def init_session_state():
 # ============= PAGES =============
 
 def page_home():
-    """Professional Home Dashboard"""
+    """Professional Home Dashboard - LIGHT MODE"""
     
     # ============ HERO SECTION ============
     st.markdown("""
     <div style='text-align: center; padding: 40px 0 50px 0;'>
         <div style='margin-bottom: 16px;'>
-            <span style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; color: white; font-weight: 500;'>
+            <span style='background: linear-gradient(135deg, #4169E1, #6366F1); padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; color: white; font-weight: 500;'>
                 AI-Powered Analytics
             </span>
         </div>
         <h1 style='font-size: 3rem; font-weight: 800; margin: 0 0 16px 0; 
-                   background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%); 
+                   background: linear-gradient(135deg, #1F2937 0%, #4B5563 100%); 
                    -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
             YouTube Comment Analyzer
         </h1>
-        <p style='font-size: 1.1rem; color: #64748B; max-width: 500px; margin: 0 auto; line-height: 1.6;'>
+        <p style='font-size: 1.1rem; color: #6B7280; max-width: 500px; margin: 0 auto; line-height: 1.6;'>
             Extract sentiment insights, discover trends, and understand your audience with local AI processing.
         </p>
     </div>
@@ -552,21 +773,21 @@ def page_home():
     # ============ FEATURE BADGES ============
     st.markdown("""
     <div style='display: flex; justify-content: center; gap: 16px; margin-bottom: 48px; flex-wrap: wrap;'>
-        <div style='display: flex; align-items: center; gap: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; padding: 8px 16px;'>
-            <span style='color: #10B981; font-size: 1rem;'>✓</span>
-            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>Yerel İşleme</span>
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #059669; font-size: 1rem;'>✓</span>
+            <span style='color: #4B5563; font-size: 0.875rem; font-weight: 500;'>Yerel İşleme</span>
         </div>
-        <div style='display: flex; align-items: center; gap: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 20px; padding: 8px 16px;'>
-            <span style='color: #3B82F6; font-size: 1rem;'>⚡</span>
-            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>GPU Hızlandırma</span>
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(65, 105, 225, 0.08); border: 1px solid rgba(65, 105, 225, 0.25); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #4169E1; font-size: 1rem;'>⚡</span>
+            <span style='color: #4B5563; font-size: 0.875rem; font-weight: 500;'>GPU Hızlandırma</span>
         </div>
-        <div style='display: flex; align-items: center; gap: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 20px; padding: 8px 16px;'>
-            <span style='color: #8B5CF6; font-size: 1rem;'>🔑</span>
-            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>API Gerektirmez</span>
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #6366F1; font-size: 1rem;'>🔑</span>
+            <span style='color: #4B5563; font-size: 0.875rem; font-weight: 500;'>API Gerektirmez</span>
         </div>
-        <div style='display: flex; align-items: center; gap: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 8px 16px;'>
-            <span style='color: #F59E0B; font-size: 1rem;'>🔒</span>
-            <span style='color: #CBD5E1; font-size: 0.875rem; font-weight: 500;'>Gizlilik Öncelikli</span>
+        <div style='display: flex; align-items: center; gap: 10px; background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.25); border-radius: 20px; padding: 8px 16px;'>
+            <span style='color: #D97706; font-size: 1rem;'>🔒</span>
+            <span style='color: #4B5563; font-size: 0.875rem; font-weight: 500;'>Gizlilik Öncelikli</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -576,19 +797,19 @@ def page_home():
     
     with col1:
         st.markdown("""
-        <div class="glass-card" style="border-left: 4px solid #3B82F6; min-height: 200px;">
+        <div class="glass-card" style="border-left: 4px solid #4169E1; min-height: 200px; background: #FFFFFF;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <div style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <div style="background: linear-gradient(135deg, #4169E1, #3B5ED9); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                 </div>
                 <div>
-                    <div style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC;">Tekil Video</div>
-                    <div style="font-size: 0.8rem; color: #94A3B8;">Derinlemesine analiz</div>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #1F2937;">Tekil Video</div>
+                    <div style="font-size: 0.8rem; color: #6B7280;">Derinlemesine analiz</div>
                 </div>
             </div>
-            <p style="color: #CBD5E1; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
+            <p style="color: #4B5563; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
                 Tek bir YouTube videosunun yorumlarını analiz edin. Duygu dağılımı, anahtar kelime çıkarımı ve AI destekli içgörüler alın.
             </p>
         </div>
@@ -601,9 +822,9 @@ def page_home():
             
     with col2:
         st.markdown("""
-        <div class="glass-card" style="border-left: 4px solid #8B5CF6; min-height: 200px;">
+        <div class="glass-card" style="border-left: 4px solid #6366F1; min-height: 200px; background: #FFFFFF;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <div style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <div style="background: linear-gradient(135deg, #6366F1, #4F46E5); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
@@ -612,11 +833,11 @@ def page_home():
                     </svg>
                 </div>
                 <div>
-                    <div style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC;">Toplu Arama</div>
-                    <div style="font-size: 0.8rem; color: #94A3B8;">Çoklu video karşılaştırma</div>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #1F2937;">Toplu Arama</div>
+                    <div style="font-size: 0.8rem; color: #6B7280;">Çoklu video karşılaştırma</div>
                 </div>
             </div>
-            <p style="color: #CBD5E1; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
+            <p style="color: #4B5563; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
                 YouTube'da arama yapın ve birden fazla videoyu aynı anda analiz edin. Rakiplerin duygu durumlarını karşılaştırın.
             </p>
         </div>
@@ -632,7 +853,7 @@ def page_home():
     
     st.markdown("""
     <div style='text-align: center; margin-bottom: 24px;'>
-        <span style='font-size: 0.85rem; color: #94A3B8; text-transform: uppercase; letter-spacing: 2px;'>Nasıl Çalışır?</span>
+        <span style='font-size: 0.85rem; color: #6B7280; text-transform: uppercase; letter-spacing: 2px;'>Nasıl Çalışır?</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -641,33 +862,33 @@ def page_home():
     with c1:
         st.markdown("""
         <div style='text-align: center; padding: 20px;'>
-            <div style='background: rgba(59, 130, 246, 0.15); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(59, 130, 246, 0.3);'>
-                <span style='color: #60A5FA; font-weight: 700; font-size: 1.4rem;'>1</span>
+            <div style='background: rgba(65, 105, 225, 0.1); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(65, 105, 225, 0.25);'>
+                <span style='color: #4169E1; font-weight: 700; font-size: 1.4rem;'>1</span>
             </div>
-            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 8px; font-size: 1rem;'>URL Yapıştır</div>
-            <div style='font-size: 0.9rem; color: #CBD5E1; line-height: 1.5;'>Herhangi bir YouTube video linkini girin</div>
+            <div style='font-weight: 600; color: #1F2937; margin-bottom: 8px; font-size: 1rem;'>URL Yapıştır</div>
+            <div style='font-size: 0.9rem; color: #6B7280; line-height: 1.5;'>Herhangi bir YouTube video linkini girin</div>
         </div>
         """, unsafe_allow_html=True)
     
     with c2:
         st.markdown("""
         <div style='text-align: center; padding: 20px;'>
-            <div style='background: rgba(139, 92, 246, 0.15); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(139, 92, 246, 0.3);'>
-                <span style='color: #A78BFA; font-weight: 700; font-size: 1.4rem;'>2</span>
+            <div style='background: rgba(99, 102, 241, 0.1); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(99, 102, 241, 0.25);'>
+                <span style='color: #6366F1; font-weight: 700; font-size: 1.4rem;'>2</span>
             </div>
-            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 8px; font-size: 1rem;'>İşle</div>
-            <div style='font-size: 0.9rem; color: #CBD5E1; line-height: 1.5;'>AI yorumları yerel olarak analiz eder</div>
+            <div style='font-weight: 600; color: #1F2937; margin-bottom: 8px; font-size: 1rem;'>İşle</div>
+            <div style='font-size: 0.9rem; color: #6B7280; line-height: 1.5;'>AI yorumları yerel olarak analiz eder</div>
         </div>
         """, unsafe_allow_html=True)
     
     with c3:
         st.markdown("""
         <div style='text-align: center; padding: 20px;'>
-            <div style='background: rgba(16, 185, 129, 0.15); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(16, 185, 129, 0.3);'>
-                <span style='color: #34D399; font-weight: 700; font-size: 1.4rem;'>3</span>
+            <div style='background: rgba(5, 150, 105, 0.1); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; border: 1px solid rgba(5, 150, 105, 0.25);'>
+                <span style='color: #059669; font-weight: 700; font-size: 1.4rem;'>3</span>
             </div>
-            <div style='font-weight: 600; color: #F8FAFC; margin-bottom: 8px; font-size: 1rem;'>İçgörüler</div>
-            <div style='font-size: 0.9rem; color: #CBD5E1; line-height: 1.5;'>Grafikler, trendler ve raporları görün</div>
+            <div style='font-weight: 600; color: #1F2937; margin-bottom: 8px; font-size: 1rem;'>İçgörüler</div>
+            <div style='font-size: 0.9rem; color: #6B7280; line-height: 1.5;'>Grafikler, trendler ve raporları görün</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -675,38 +896,63 @@ def page_home():
 
 
 def page_analyze():
-    """Professional Analysis Page"""
+    """Professional Analysis Page - LIGHT MODE"""
     
     st.markdown("""
     <div style='margin-bottom: 28px;'>
-        <h2 style='font-size: 1.8rem; margin: 0; color: #F8FAFC;'>Analysis Console</h2>
-        <p style='color: #64748B; font-size: 0.9rem; margin-top: 4px;'>Extract insights from YouTube video comments</p>
+        <h2 style='font-size: 1.8rem; margin: 0; color: #1F2937;'>Analysis Console</h2>
+        <p style='color: #6B7280; font-size: 0.9rem; margin-top: 4px;'>Extract insights from YouTube video comments</p>
     </div>
     """, unsafe_allow_html=True)
     
     # Ensure analysis_mode is in session_state
     if 'analysis_mode' not in st.session_state:
-        st.session_state.analysis_mode = "Single Video"
+        st.session_state.analysis_mode = "single"
     
-    # --- STEP 1: Mode Selection ---
+    # --- COMPACT MODE SELECTION (Pills Style) ---
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 12px;'>
-        <span style='background: #3B82F6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>1</span>
-        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Select Mode</span>
+        <span style='background: #4169E1; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>1</span>
+        <span style='font-size: 1rem; font-weight: 600; color: #1F2937;'>Analiz Modu</span>
     </div>
     """, unsafe_allow_html=True)
     
-    mode = st.radio(
-        "Analysis Mode", 
-        ["Single Video", "Multi-Video Batch"], 
-        horizontal=True,
-        label_visibility="collapsed",
-        key="analysis_mode"
-    )
+    # Try st.pills (Streamlit 1.33+) or fallback to radio
+    try:
+        mode = st.pills(
+            "Mod",
+            options=["🎥 Tekil Video", "🚀 Toplu Arama"],
+            default="🎥 Tekil Video" if st.session_state.analysis_mode == "single" else "🚀 Toplu Arama",
+            label_visibility="collapsed"
+        )
+        is_single = mode == "🎥 Tekil Video"
+    except AttributeError:
+        # Fallback for older Streamlit versions - use segmented_control or radio
+        try:
+            mode = st.segmented_control(
+                "Mod",
+                options=["🎥 Tekil Video", "🚀 Toplu Arama"],
+                default="🎥 Tekil Video" if st.session_state.analysis_mode == "single" else "🚀 Toplu Arama",
+                label_visibility="collapsed"
+            )
+            is_single = mode == "🎥 Tekil Video"
+        except AttributeError:
+            # Final fallback to radio
+            mode = st.radio(
+                "Mod",
+                ["🎥 Tekil Video", "🚀 Toplu Arama"],
+                horizontal=True,
+                label_visibility="collapsed",
+                index=0 if st.session_state.analysis_mode == "single" else 1
+            )
+            is_single = mode == "🎥 Tekil Video"
     
-    st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
+    # Update session state
+    st.session_state.analysis_mode = "single" if is_single else "multi"
     
-    if mode == "Single Video":
+    st.markdown("<div style='height: 16px'></div>", unsafe_allow_html=True)
+    
+    if is_single:
         analyze_single_video()
     else:
         analyze_multi_video()
@@ -715,11 +961,14 @@ def page_analyze():
 def analyze_single_video():
     # --- STEP 2: Input Configuration ---
     st.markdown("""
-    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 12px;'>
-        <span style='background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
-        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Input Configuration</span>
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 8px;'>
+        <span style='background: #6366F1; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
+        <span style='font-size: 1rem; font-weight: 600; color: #1F2937;'>Video Bilgileri</span>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Dynamic help text for single video mode
+    st.caption("📌 Analiz etmek istediğiniz YouTube videosunun linkini aşağıya yapıştırın.")
     
     with st.container():
         col1, col2 = st.columns([4, 1], gap="medium")
@@ -805,8 +1054,19 @@ def run_single_analysis(url, count):
 
 
 def analyze_multi_video():
+    # --- STEP 2: Search Configuration ---
+    st.markdown("""
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 8px;'>
+        <span style='background: #6366F1; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
+        <span style='font-size: 1rem; font-weight: 600; color: #1F2937;'>Arama Ayarları</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Dynamic help text for multi-video mode
+    st.caption("🔍 YouTube'da aranacak sorguyu girin, birden fazla videodan toplu yorum analizi yapılacaktır.")
+    
     c1, c2, c3 = st.columns([2, 1, 1])
-    query = c1.text_input("Search Query", placeholder="e.g., 'python tutorial'")
+    query = c1.text_input("Search Query", placeholder="e.g., 'iPhone 15 inceleme'")
     count = c2.number_input("Video Count", 1, 20, 5)
     per_vid = c3.number_input("Comments/Video", 10, 500, 100)
     
@@ -908,15 +1168,46 @@ def display_single_results():
     
     st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
     
-    # Video Header
+    # Video Header - Light Mode
     st.markdown(f"""
     <div style='text-align: center; margin-bottom: 32px;'>
-        <h3 style='font-size: 1.5rem; color: #F8FAFC; margin-bottom: 8px;'>{data.get('baslik', 'Video Title')}</h3>
-        <span style='color: #64748B; font-size: 0.9rem; background: rgba(30, 41, 59, 0.5); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(148, 163, 184, 0.1);'>
+        <h3 style='font-size: 1.5rem; color: #1F2937; margin-bottom: 8px;'>{data.get('baslik', 'Video Title')}</h3>
+        <span style='color: #6B7280; font-size: 0.9rem; background: #F3F4F6; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.08);'>
             {data.get('kanal', 'Unknown Channel')} &bull; {data.get('sure', '0')}s
         </span>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Video Description & AI Analysis (Simplified)
+    if data.get('aciklama'):
+        with st.expander("📝 AI Video Özeti", expanded=False):
+            desc_key = f"desc_summary_{data.get('video_id')}"
+            
+            # Eğer özet henüz oluşturulmadıysa butonu göster
+            if desc_key not in st.session_state:
+                if st.button("✨ Video İçeriğini Özetle", key="btn_analyze_desc", use_container_width=True):
+                    with st.spinner("AI video içeriğini analiz ediyor..."):
+                        try:
+                            ollama = OllamaLLM(model_name="gemma3:4b")
+                            if ollama.check_connection():
+                                summary = ollama.summarize_video_description(data['aciklama'])
+                                st.session_state[desc_key] = summary
+                                st.rerun()
+                            else:
+                                st.error("Ollama bağlantısı başarısız. Lütfen Ollama'nın çalıştığından emin olun.")
+                        except Exception as e:
+                            st.error(f"Analiz hatası: {e}")
+            
+            # Özet varsa temiz bir kutu içinde göster
+            else:
+                st.info(st.session_state[desc_key], icon="ℹ️")
+                
+                # İsteğe bağlı yeniden oluşturma
+                if st.button("🔄 Yeniden Özetle", key="btn_reanalyze_desc", type="secondary", help="Özeti tekrar oluştur"):
+                    del st.session_state[desc_key]
+                    st.rerun()
+    
+    st.markdown("<div style='height: 24px'></div>", unsafe_allow_html=True)
     
     # Custom Metrics Grid
     c1, c2, c3, c4 = st.columns(4)
@@ -926,25 +1217,62 @@ def display_single_results():
         stats = SentimentAnalyzer().get_summary_stats(res)
         sentiment_score = stats['sentiment_score']
     
-    def metric_card(label, value, color="#3B82F6"):
+    # Determine sentiment status
+    if sentiment_score > 0:
+        s_color = "#059669"
+        s_icon = "🟢"
+        s_status = "Pozitif"
+    elif sentiment_score < 0:
+        s_color = "#DC2626"
+        s_icon = "🔴"
+        s_status = "Negatif"
+    else:
+        s_color = "#6B7280"
+        s_icon = "🟡"
+        s_status = "Nötr"
+    
+    # All cards have matching height for visual consistency
+    CARD_HEIGHT = "88px"
+    
+    def metric_card(label, value, color="#4169E1"):
         return f"""
-        <div style='background: rgba(30, 41, 59, 0.4); border-left: 3px solid {color}; padding: 16px; border-radius: 8px;'>
-            <div style='color: #94A3B8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;'>{label}</div>
-            <div style='color: #F8FAFC; font-size: 1.5rem; font-weight: 700; margin-top: 4px;'>{value}</div>
+        <div style='background: #FFFFFF; border-left: 4px solid {color}; padding: 16px 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); height: {CARD_HEIGHT}; display: flex; flex-direction: column; justify-content: center;'>
+            <div style='color: #6B7280; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;'>{label}</div>
+            <div style='color: #1F2937; font-size: 1.5rem; font-weight: 700; margin-top: 4px;'>{value}</div>
+        </div>
+        """
+    
+    def sentiment_card(score, color, icon, status):
+        """Compact sentiment score card - same height as other metric cards"""
+        arrow = "🔼" if score > 0 else "🔻" if score < 0 else "➖"
+        return f"""
+        <div style='background: #FFFFFF; border-left: 4px solid {color}; padding: 16px 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); height: {CARD_HEIGHT}; display: flex; flex-direction: column; justify-content: center;'>
+            <div style='color: #6B7280; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;'>Sentiment Score</div>
+            <div style='display: flex; align-items: center; gap: 10px; margin-top: 4px;'>
+                <span style='color: {color}; font-size: 1.5rem; font-weight: 700;'>{arrow} {score:.2f}</span>
+                <span style='font-size: 0.75rem; font-weight: 600; color: {color}; background: #F3F4F6; padding: 2px 8px; border-radius: 10px;'>{icon} {status}</span>
+            </div>
         </div>
         """
 
-    with c1: st.markdown(metric_card("Total Comments", len(comments), "#3B82F6"), unsafe_allow_html=True)
-    with c2: st.markdown(metric_card("Total Likes", f"{sum(c.get('begeni', 0) for c in comments):,}", "#8B5CF6"), unsafe_allow_html=True)
-    with c3: st.markdown(metric_card("Video Views", f"{data.get('goruntulenme', 0):,}", "#10B981"), unsafe_allow_html=True)
+    with c1: st.markdown(metric_card("Total Comments", len(comments), "#4169E1"), unsafe_allow_html=True)
+    with c2: st.markdown(metric_card("Total Likes", f"{sum(c.get('begeni', 0) for c in comments):,}", "#6366F1"), unsafe_allow_html=True)
+    with c3: st.markdown(metric_card("Video Views", f"{data.get('goruntulenme', 0):,}", "#059669"), unsafe_allow_html=True)
     
-    # Dynamic color for sentiment
-    s_color = "#10B981" if sentiment_score > 0 else "#EF4444" if sentiment_score < 0 else "#94A3B8"
-    with c4: st.markdown(metric_card("Sentiment Score", f"{sentiment_score:.2f}", s_color), unsafe_allow_html=True)
+    # Sentiment Score with dedicated card
+    with c4: st.markdown(sentiment_card(sentiment_score, s_color, s_icon, s_status), unsafe_allow_html=True)
     
     st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color: #F8FAFC; margin-bottom: 20px; border-left: 4px solid #F59E0B; padding-left: 12px;'>Visual Insights</h3>", unsafe_allow_html=True)
-    display_tabs(comments, res, data.get('baslik', ''))
+    st.markdown("<h3 style='color: #1F2937; margin-bottom: 20px; border-left: 4px solid #D97706; padding-left: 12px;'>Visual Insights</h3>", unsafe_allow_html=True)
+    
+    # Prepare rich context for AI
+    description_excerpt = data.get('aciklama', '')[:1000]
+    if description_excerpt:
+        context = f"Video Title: {data.get('baslik', '')}\n\nVideo Description Context: {description_excerpt}..."
+    else:
+        context = data.get('baslik', '')
+        
+    display_tabs(comments, res, context)
 
 
 def display_multi_video_results():
@@ -954,21 +1282,79 @@ def display_multi_video_results():
         all_comments.extend(v.get('yorumlar', []))
     
     st.divider()
-    st.subheader(f"Batch Results ({len(videos)} Videos)")
     
-    # Stats
+    # Updated header with total comments
+    total_comments = len(all_comments)
+    st.markdown(f"""
+    <div style='margin-bottom: 24px;'>
+        <h2 style='font-size: 1.6rem; color: #1F2937; margin: 0;'>
+            📊 Batch Results - {len(videos)} Video, {total_comments:,} Yorum
+        </h2>
+        <p style='color: #6B7280; font-size: 0.9rem; margin-top: 6px;'>Toplu analiz sonuçları</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Stats with custom styling
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Total Comments", len(all_comments))
-    c2.metric("Total Likes", f"{sum(c.get('begeni', 0) for c in all_comments):,}")
-    c3.metric("Videos Scanned", len(videos))
+    
+    def stat_card(label, value, color="#4169E1", emoji=""):
+        emoji_html = f"<span style='margin-right: 4px;'>{emoji}</span>" if emoji else ""
+        return f"""
+        <div style='background: #FFFFFF; border-left: 4px solid {color}; padding: 16px 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #E5E7EB;'>
+            <div style='color: #6B7280; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;'>{label}</div>
+            <div style='color: #1F2937; font-size: 1.4rem; font-weight: 700; margin-top: 4px;'>{emoji_html}{value}</div>
+        </div>
+        """
+    
+    with c1: st.markdown(stat_card("Total Comments", f"{total_comments:,}", "#4169E1"), unsafe_allow_html=True)
+    with c2: st.markdown(stat_card("Total Likes", f"{sum(c.get('begeni', 0) for c in all_comments):,}", "#6366F1"), unsafe_allow_html=True)
+    with c3: st.markdown(stat_card("Videos Scanned", len(videos), "#059669"), unsafe_allow_html=True)
     
     if st.session_state.multi_video_sentiment:
         stats = SentimentAnalyzer().get_summary_stats(st.session_state.multi_video_sentiment)
-        c4.metric("Overall Sentiment", f"{stats['sentiment_score']:.2f}")
+        sentiment_score = stats['sentiment_score']
+        # Determine color and emoji based on sentiment
+        if sentiment_score > 0:
+            s_color = "#059669"
+            s_emoji = "📈"
+        elif sentiment_score < 0:
+            s_color = "#DC2626"
+            s_emoji = "📉"
+        else:
+            s_color = "#6B7280"
+            s_emoji = "➖"
+        with c4: st.markdown(stat_card("Overall Sentiment", f"{sentiment_score:.2f}", s_color, s_emoji), unsafe_allow_html=True)
+    
+    st.markdown("<div style='height: 16px'></div>", unsafe_allow_html=True)
 
-    with st.expander("SOURCE LIST"):
+    # SOURCE LIST - Enhanced with video titles, URLs and comment counts
+    with st.expander("📋 VIDEO KAYNAK LİSTESİ", expanded=True):
+        st.markdown("""
+        <div style='margin-bottom: 12px;'>
+            <span style='color: #6B7280; font-size: 0.85rem;'>Analiz edilen videoların listesi ve yorum sayıları:</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
         for i, v in enumerate(videos, 1):
-            st.write(f"**{i}. {v.get('baslik')}** - {len(v['yorumlar'])} comments")
+            video_title = v.get('baslik', 'Video')[:60] + ('...' if len(v.get('baslik', '')) > 60 else '')
+            comment_count = len(v.get('yorumlar', []))
+            video_url = v.get('url', v.get('video_url', '#'))
+            
+            st.markdown(f"""
+            <div style='background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.04);'>
+                <div style='flex: 1;'>
+                    <div style='display: flex; align-items: center; gap: 8px;'>
+                        <span style='background: #4169E1; color: white; font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 4px;'>{i}</span>
+                        <a href='{video_url}' target='_blank' style='color: #1F2937; font-weight: 600; font-size: 0.95rem; text-decoration: none; hover: color: #4169E1;'>
+                            {video_title}
+                        </a>
+                    </div>
+                </div>
+                <div style='background: #F0F9FF; color: #4169E1; padding: 6px 12px; border-radius: 16px; font-weight: 600; font-size: 0.85rem; white-space: nowrap;'>
+                    💬 {comment_count} yorum
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     display_tabs(all_comments, st.session_state.multi_video_sentiment, "Multi-Video Analysis")
 
@@ -1026,27 +1412,27 @@ def display_tabs(comments, sentiment_results, title_context):
                 batch_sentiments = [sentiment_results[i] for i in batch_indices]
                 dist = SentimentAnalyzer().get_sentiment_distribution(batch_sentiments)
                 
-                # Mini stacked bar
+                # Mini stacked bar - Light Mode colors
                 fig_mini = go.Figure()
                 fig_mini.add_trace(go.Bar(
                     x=[dist['positive']], y=[''], orientation='h', 
-                    marker_color='#10B981', name='Pos', hoverinfo='x'
+                    marker_color='#059669', name='Pos', hoverinfo='x'
                 ))
                 fig_mini.add_trace(go.Bar(
                     x=[dist['negative']], y=[''], orientation='h', 
-                    marker_color='#EF4444', name='Neg', hoverinfo='x'
+                    marker_color='#DC2626', name='Neg', hoverinfo='x'
                 ))
                 fig_mini.add_trace(go.Bar(
                     x=[dist['neutral']], y=[''], orientation='h', 
-                    marker_color='#94A3B8', name='Neu', hoverinfo='x'
+                    marker_color='#6B7280', name='Neu', hoverinfo='x'
                 ))
                 fig_mini.update_layout(
                     barmode='stack', 
                     height=40, 
                     margin=dict(l=0, r=0, t=0, b=0),
                     showlegend=False,
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(255,255,255,0)',
+                    plot_bgcolor='rgba(255,255,255,0)',
                     xaxis=dict(showgrid=False, showticklabels=False),
                     yaxis=dict(showgrid=False, showticklabels=False)
                 )
@@ -1055,30 +1441,34 @@ def display_tabs(comments, sentiment_results, title_context):
 
         st.markdown("---")
 
-        # 3. Comments List (Styled Cards)
+        # 3. Comments List (Light Mode Styled Cards)
         for c in current_batch:
-             # Try to find corresponding sentiment if available
-            sentiment_color = "#94A3B8" # Default gray
-            score = 0
+            # Clean comment text from any HTML artifacts
+            comment_text = c.get('metin', '')
+            if isinstance(comment_text, str):
+                # Remove any HTML artifacts that might leak through
+                comment_text = comment_text.replace('</div>', '').replace('<div>', '')
+                comment_text = comment_text.replace('</span>', '').replace('<span>', '')
+                comment_text = comment_text.strip()
+            
+            # Try to find corresponding sentiment if available
+            sentiment_color = "#6B7280"  # Default gray
             if sentiment_results:
-                # Assuming simple mapping by index, but comments list might be filtered/sorted in future.
-                # Since comments arg is passed directly, index matching should work for now.
-                # Ideally, comments should have ID or attached sentiment.
-                # For safety, let's just show raw text styled.
+                # For future: could attach sentiment to each comment
                 pass
 
             st.markdown(f"""
-            <div class="glass-card" style="padding: 16px; margin-bottom: 12px; border-left: 4px solid #3B82F6;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="color: #60A5FA; font-weight: 600; font-size: 0.9rem;">{c.get('yazar', 'User')}</span>
-                    <span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
+            <div class="comment-card" style="background: #FFFFFF; padding: 18px 22px; margin-bottom: 14px; border-left: 4px solid #4169E1; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.06);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="color: #4169E1; font-weight: 600; font-size: 0.95rem;">👤 {c.get('yazar', 'User')}</span>
+                    <span style="background: #F3F4F6; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; color: #6B7280; border: 1px solid rgba(0,0,0,0.06);">
                         ❤️ {c.get('begeni', 0)}
                     </span>
                 </div>
-                <div style="color: #E2E8F0; font-size: 0.95rem; line-height: 1.5;">
-                    {c.get('metin', '')}
+                <div style="color: #1F2937; font-size: 0.95rem; line-height: 1.7;">
+                    {comment_text}
                 </div>
-                {f'<div style="margin-top:8px; font-size:0.75rem; color:#64748B;">📺 {c["_video_title"]}</div>' if '_video_title' in c else ''}
+                {f'<div style="margin-top:12px; font-size:0.8rem; color:#6B7280; display: flex; align-items: center; gap: 6px;"><span>📺</span> {c["_video_title"]}</div>' if '_video_title' in c else ''}
             </div>
             """, unsafe_allow_html=True)
 
@@ -1133,44 +1523,50 @@ def display_tabs(comments, sentiment_results, title_context):
         
         # Display if exists
         if st.session_state[summary_key]:
-            # Use container with custom CSS
-            with st.container():
-                st.markdown("""
-                <div style="background: #1E293B; 
-                            border-left: 4px solid #10B981; 
-                            border-radius: 8px; 
-                            padding: 20px; 
-                            margin: 16px 0;
-                            border: 1px solid rgba(16, 185, 129, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                        <span style="font-size: 1.2rem;">📝</span>
-                        <span style="font-size: 1.1rem; font-weight: 600; color: #10B981;">AI Generated Summary</span>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown(st.session_state[summary_key])
-                
-                st.markdown("</div>", unsafe_allow_html=True)
+            # Clean the summary text (remove any trailing </div> if present)
+            summary_text = st.session_state[summary_key]
+            if isinstance(summary_text, str):
+                # Remove any trailing HTML artifacts
+                summary_text = summary_text.replace('</div>', '').strip()
             
-            if st.button("Clear Summary", key="btn_clr_summary"):
+            # Render as a styled report card container
+            st.markdown(f"""
+            <div style="background: #F8F9FA; 
+                        border-left: 5px solid #4A90E2; 
+                        border-radius: 10px; 
+                        padding: 20px 24px; 
+                        margin: 16px 0;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        border: 1px solid #E5E7EB;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E7EB;">
+                    <span style="font-size: 1.4rem;">🤖</span>
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #1F2937;">AI Analiz Raporu</span>
+                </div>
+                <div style="color: #374151; font-size: 0.95rem; line-height: 1.9;">
+                    {summary_text}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button("🗑️ Özeti Temizle", key="btn_clr_summary"):
                 st.session_state[summary_key] = None
                 st.rerun()
 
 
 def page_battle():
-    # Clean header
+    # Clean header - Light Mode
     st.markdown("""
     <div style='margin-bottom: 32px;'>
-        <h2 style='font-size: 1.8rem; margin: 0; color: #F8FAFC;'>Competitive Battle</h2>
-        <p style='color: #64748B; font-size: 0.9rem; margin-top: 4px;'>Compare two videos using AI-powered evaluation</p>
+        <h2 style='font-size: 1.8rem; margin: 0; color: #1F2937;'>Competitive Battle</h2>
+        <p style='color: #6B7280; font-size: 0.9rem; margin-top: 4px;'>Compare two videos using AI-powered evaluation</p>
     </div>
     """, unsafe_allow_html=True)
     
     # --- STEP 1: Video URL Inputs ---
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 12px;'>
-        <span style='background: #3B82F6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>1</span>
-        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Source Configuration</span>
+        <span style='background: #4169E1; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>1</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #1F2937;'>Source Configuration</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1183,8 +1579,8 @@ def page_battle():
     # --- STEP 2: Evaluation Criteria ---
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 8px;'>
-        <span style='background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
-        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Evaluation Criteria</span>
+        <span style='background: #6366F1; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>2</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #1F2937;'>Evaluation Criteria</span>
     </div>
     """, unsafe_allow_html=True)
     st.caption("Define categories to classify and compare comments")
@@ -1289,7 +1685,7 @@ def page_battle():
         v2 = st.session_state.battle_video2
         
         st.markdown("---")
-        st.subheader("Comparison Results")
+        st.markdown("## Comparison Results")
         
         if result.winner != "Berabere":
             st.success(f"**Leader: {result.winner}**")
@@ -1299,7 +1695,7 @@ def page_battle():
         c2.metric(v2.get('baslik', 'Video 2')[:25], f"{result.video2_total_comments} comments")
         
         # ========== CLASSIFICATION SUMMARY TABLE ==========
-        st.markdown("### 📊 Sınıflandırma Özet Tablosu")
+        st.markdown("### Classification Summary")
         st.caption("Her kategori için kaç yorum 1 (uygun) veya 0 (uygun değil) olarak sınıflandırıldı")
         
         if result.v1_classifications and result.v2_classifications:
@@ -1345,19 +1741,19 @@ def page_battle():
                 
                 st.markdown(f"""
                 <div style='display: flex; gap: 20px; margin-top: 8px;'>
-                    <span style='color: #3B82F6; font-size: 0.85rem;'>🔵 V1 = {v1.get('baslik', 'Video 1')[:30]}</span>
-                    <span style='color: #8B5CF6; font-size: 0.85rem;'>🟣 V2 = {v2.get('baslik', 'Video 2')[:30]}</span>
+                    <span style='color: #4A90E2; font-size: 0.85rem; font-weight: 500;'>Video A = {v1.get('baslik', 'Video 1')[:30]}</span>
+                    <span style='color: #6C5CE7; font-size: 0.85rem; font-weight: 500;'>Video B = {v2.get('baslik', 'Video 2')[:30]}</span>
                 </div>
                 """, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Sample size warning
+        # Sample size warning - no emojis (enterprise style)
         min_comments = min(result.video1_total_comments, result.video2_total_comments)
         if min_comments < 10:
-            st.warning(f"⚠️ **Düşük Örneklem Uyarısı:** En az yoruma sahip video sadece {min_comments} yoruma sahip. Güvenilir analiz için en az 20+ yorum önerilir.")
+            st.warning(f"**Low Sample Warning:** The video with fewest comments has only {min_comments} comments. Minimum 20+ comments recommended for reliable analysis.")
         elif min_comments < 20:
-            st.info(f"💡 **Not:** Örneklem boyutu ({min_comments} yorum) orta düzeyde. Sonuçları dikkatli yorumlayın.")
+            st.info(f"**Note:** Sample size ({min_comments} comments) is moderate. Interpret results carefully.")
         
         st.markdown("### Category Analytics")
         
@@ -1366,13 +1762,13 @@ def page_battle():
         with tab1:
             fig = create_category_comparison_chart(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
             st.plotly_chart(fig, use_container_width=True)
-            st.caption("📊 **Veri:** Her kategori için yorumların kaçının o kategoriye uyduğu (eşleşme oranı %). Daha yüksek = o konuda daha çok konuşulmuş.")
+            st.caption("Her kategori için kaç yorum o kategoriye uyduğu (eşleşme oranı %). Daha yüksek = o konuda daha çok konuşulmuş.")
         
         with tab2:
             # Category Pie Charts - showing match distribution for each category
             fig = create_category_pie_grid(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
             st.plotly_chart(fig, use_container_width=True)
-            st.caption("📊 **Veri:** Her kategori için eşleşen (yeşil) ve diğer (gri) yorum oranları.")
+            st.caption("Her kategori için eşleşen ve diğer yorum oranları.")
         
         with tab3:
             # Category Temporal Charts - sentiment over time for each category
@@ -1400,133 +1796,194 @@ def page_battle():
             )
             st.plotly_chart(fig, use_container_width=True)
             
-            st.caption("📊 **Veri:** Her kategori için zamana bağlı pozitif (yeşil) ve negatif (kırmızı) yorum sayıları.")
+            st.caption("Her kategori için zamana bağlı pozitif ve negatif yorum sayıları.")
         
         with tab4:
             fig = create_category_heatmap(result.categories, v1.get('baslik', 'Video 1'), v2.get('baslik', 'Video 2'))
             st.plotly_chart(fig, use_container_width=True)
         
-        # ========== LLM COMPARISON SUMMARIES ==========
-        st.markdown("""
-        <div style='display: flex; align-items: center; gap: 10px; margin: 32px 0 16px 0;'>
-            <span style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.9rem;'>🤖</span>
-            <span style='font-size: 1.4rem; font-weight: 700; color: #F8FAFC;'>AI Karşılaştırma Özeti</span>
-        </div>
-        """, unsafe_allow_html=True)
-        st.caption("Her video için yapay zeka tarafından oluşturulan yorum analizi özeti")
+        # ========== LLM COMPARISON SUMMARIES - SESSION STATE BASED ==========
+        st.markdown("### AI Comparison Summary")
+        st.caption("AI-generated comment analysis summary for each video")
         
-        # Generate summaries for each video
-        from ollama_llm import OllamaLLM
+        # Initialize summary keys in session state
+        summary_key_v1 = "battle_summary_v1"
+        summary_key_v2 = "battle_summary_v2"
         
+        if summary_key_v1 not in st.session_state:
+            st.session_state[summary_key_v1] = None
+        if summary_key_v2 not in st.session_state:
+            st.session_state[summary_key_v2] = None
+        
+        # Video info cards
         col_v1, col_v2 = st.columns(2)
         
         with col_v1:
             v1_name = v1.get('baslik', 'Video 1')[:35]
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05)); 
-                        border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px;'>
-                <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 12px;'>
-                    <span style='font-size: 1.2rem;'>🔵</span>
-                    <span style='font-weight: 600; color: #60A5FA; font-size: 1rem;'>{v1_name}</span>
-                </div>
-                <div style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 8px;'>
-                    📊 {result.video1_total_comments} yorum analiz edildi
-                </div>
+            <div style='background: #F9FAFB; border-left: 4px solid #4A90E2; border-radius: 8px; padding: 16px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>
+                <div style='font-weight: 600; color: #1F2937; font-size: 0.95rem; margin-bottom: 8px;'>Video A: {v1_name}</div>
+                <div style='color: #6B7280; font-size: 0.8rem;'>{result.video1_total_comments} comments analyzed</div>
             </div>
             """, unsafe_allow_html=True)
         
         with col_v2:
             v2_name = v2.get('baslik', 'Video 2')[:35]
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05)); 
-                        border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px;'>
-                <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 12px;'>
-                    <span style='font-size: 1.2rem;'>🟣</span>
-                    <span style='font-weight: 600; color: #A78BFA; font-size: 1rem;'>{v2_name}</span>
-                </div>
-                <div style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 8px;'>
-                    📊 {result.video2_total_comments} yorum analiz edildi
-                </div>
+            <div style='background: #F9FAFB; border-left: 4px solid #6C5CE7; border-radius: 8px; padding: 16px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>
+                <div style='font-weight: 600; color: #1F2937; font-size: 0.95rem; margin-bottom: 8px;'>Video B: {v2_name}</div>
+                <div style='color: #6B7280; font-size: 0.8rem;'>{result.video2_total_comments} comments analyzed</div>
             </div>
             """, unsafe_allow_html=True)
         
-        # Generate LLM summaries
-        with st.spinner("🤖 AI özet oluşturuluyor..."):
-            try:
-                summarizer = OllamaLLM()
-                
-                v1_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v1.get('yorumlar', [])[:30]]
-                v2_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v2.get('yorumlar', [])[:30]]
-                
-                # Get individual summaries
-                v1_summary_result = summarizer.summarize_comments(v1_comments, v1.get('baslik', 'Video 1'))
-                v2_summary_result = summarizer.summarize_comments(v2_comments, v2.get('baslik', 'Video 2'))
-                
-                col_s1, col_s2 = st.columns(2)
-                
-                with col_s1:
-                    st.markdown(f"""
-                    <div style='background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 16px; margin-top: 12px; border-left: 3px solid #3B82F6;'>
-                        <p style='color: #E2E8F0; font-size: 0.9rem; line-height: 1.6; margin: 0;'>
-                            {v1_summary_result.summary if v1_summary_result.summary else "Özet oluşturulamadı."}
-                        </p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col_s2:
-                    st.markdown(f"""
-                    <div style='background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 16px; margin-top: 12px; border-left: 3px solid #8B5CF6;'>
-                        <p style='color: #E2E8F0; font-size: 0.9rem; line-height: 1.6; margin: 0;'>
-                            {v2_summary_result.summary if v2_summary_result.summary else "Özet oluşturulamadı."}
-                        </p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                # Overall comparison based on result.summary
-                st.markdown("<br>", unsafe_allow_html=True)
-                comparison_text = result.summary if result.summary else "Karşılaştırma sonucu mevcut değil."
-                
-                st.markdown(f"""
-                <div style='background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); 
-                            border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin-top: 16px;'>
-                    <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 12px;'>
-                        <span style='font-size: 1.2rem;'>⚔️</span>
-                        <span style='font-weight: 600; color: #10B981; font-size: 1.1rem;'>Karşılaştırma Sonucu</span>
-                    </div>
-                    <p style='color: #E2E8F0; font-size: 0.9rem; line-height: 1.7; margin: 0;'>
-                        {comparison_text}
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-            except Exception as e:
-                st.warning(f"AI özet oluşturulamadı: {e}")
-                st.info("Ollama bağlantısını kontrol edin: ollama serve")
+        # Generate summaries ONLY if not already in session state
+        if st.session_state[summary_key_v1] is None or st.session_state[summary_key_v2] is None:
+            with st.spinner("Generating AI summary..."):
+                try:
+                    from ollama_llm import OllamaLLM
+                    summarizer = OllamaLLM()
+                    
+                    v1_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v1.get('yorumlar', [])[:30]]
+                    v2_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v2.get('yorumlar', [])[:30]]
+                    
+                    # Get individual summaries and store in session state
+                    v1_summary_result = summarizer.summarize_comments(v1_comments, v1.get('baslik', 'Video 1'))
+                    v2_summary_result = summarizer.summarize_comments(v2_comments, v2.get('baslik', 'Video 2'))
+                    
+                    st.session_state[summary_key_v1] = v1_summary_result.summary if v1_summary_result.summary else "Summary not available."
+                    st.session_state[summary_key_v2] = v2_summary_result.summary if v2_summary_result.summary else "Summary not available."
+                    
+                except Exception as e:
+                    st.warning(f"AI summary generation failed: {e}")
+                    st.info("Check Ollama connection: ollama serve")
+                    st.session_state[summary_key_v1] = "Summary generation failed."
+                    st.session_state[summary_key_v2] = "Summary generation failed."
+        
+        # Display summaries from session state (persists through reruns)
+        col_s1, col_s2 = st.columns(2)
+        
+        with col_s1:
+            summary_v1 = st.session_state.get(summary_key_v1, "Summary not available.")
+            st.markdown(f"""
+            <div style='background: #FFFFFF; border-radius: 8px; padding: 16px; margin-top: 12px; border-left: 4px solid #4A90E2; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>
+                <p style='color: #374151; font-size: 0.9rem; line-height: 1.7; margin: 0;'>
+                    {summary_v1}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_s2:
+            summary_v2 = st.session_state.get(summary_key_v2, "Summary not available.")
+            st.markdown(f"""
+            <div style='background: #FFFFFF; border-radius: 8px; padding: 16px; margin-top: 12px; border-left: 4px solid #6C5CE7; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>
+                <p style='color: #374151; font-size: 0.9rem; line-height: 1.7; margin: 0;'>
+                    {summary_v2}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Overall Comparison Result - High Contrast for Readability
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("#### Comparison Verdict")
+        comparison_text = result.summary if result.summary else "Comparison result not available."
+        st.markdown(f"""
+        <div style='background: #D1FAE5; border-left: 4px solid #059669; border-radius: 8px; padding: 16px 20px; 
+                    border: 1px solid #A7F3D0; box-shadow: 0 1px 4px rgba(0,0,0,0.04);'>
+            <p style='color: #155724; font-size: 0.95rem; line-height: 1.8; margin: 0; font-weight: 500;'>
+                {comparison_text}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
         
+        # ========== EXPORT DATA SECTION ==========
+        st.markdown("<div style='height: 24px'></div>", unsafe_allow_html=True)
         st.markdown("### Export Data")
-        tab_v1, tab_v2 = st.tabs([f"{v1.get('baslik', 'Video 1')[:20]}", f"{v2.get('baslik', 'Video 2')[:20]}"])
+        
+        tab_v1, tab_v2 = st.tabs([f"Video A: {v1.get('baslik', 'Video 1')[:25]}", f"Video B: {v2.get('baslik', 'Video 2')[:25]}"])
         
         with tab_v1:
             if result.v1_classifications:
                 df_v1 = pd.DataFrame(result.v1_classifications)
-                st.dataframe(df_v1, use_container_width=True, height=300)
+                st.dataframe(df_v1, use_container_width=True, height=250)
+                
+                # Download buttons for Video 1
+                col_dl1, col_dl2, col_spacer = st.columns([1, 1, 2])
+                with col_dl1:
+                    csv_v1 = df_v1.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="Download CSV",
+                        data=csv_v1,
+                        file_name=f"video_a_analysis.csv",
+                        mime="text/csv",
+                        type="secondary",
+                        use_container_width=True
+                    )
+                with col_dl2:
+                    # Excel download
+                    import io
+                    buffer = io.BytesIO()
+                    df_v1.to_excel(buffer, index=False, engine='openpyxl')
+                    buffer.seek(0)
+                    st.download_button(
+                        label="Download Excel",
+                        data=buffer,
+                        file_name=f"video_a_analysis.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        type="secondary",
+                        use_container_width=True
+                    )
         
         with tab_v2:
             if result.v2_classifications:
                 df_v2 = pd.DataFrame(result.v2_classifications)
-                st.dataframe(df_v2, use_container_width=True, height=300)
+                st.dataframe(df_v2, use_container_width=True, height=250)
+                
+                # Download buttons for Video 2
+                col_dl1, col_dl2, col_spacer = st.columns([1, 1, 2])
+                with col_dl1:
+                    csv_v2 = df_v2.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="Download CSV",
+                        data=csv_v2,
+                        file_name=f"video_b_analysis.csv",
+                        mime="text/csv",
+                        type="secondary",
+                        use_container_width=True
+                    )
+                with col_dl2:
+                    import io
+                    buffer = io.BytesIO()
+                    df_v2.to_excel(buffer, index=False, engine='openpyxl')
+                    buffer.seek(0)
+                    st.download_button(
+                        label="Download Excel",
+                        data=buffer,
+                        file_name=f"video_b_analysis.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        type="secondary",
+                        use_container_width=True
+                    )
         
-        # Reset button
-        if st.button("🔄 Yeni Karşılaştırma"):
-            st.session_state.battle_result = None
-            st.session_state.battle_video1 = None
-            st.session_state.battle_video2 = None
-            st.rerun()
+        # New Comparison Button - Centered and prominent
+        st.markdown("<div style='height: 32px'></div>", unsafe_allow_html=True)
+        col_left, col_center, col_right = st.columns([1, 2, 1])
+        with col_center:
+            if st.button("Start New Comparison", type="primary", use_container_width=True):
+                # Clear all battle-related session state
+                st.session_state.battle_result = None
+                st.session_state.battle_video1 = None
+                st.session_state.battle_video2 = None
+                # Also clear AI summaries
+                if 'battle_summary_v1' in st.session_state:
+                    del st.session_state['battle_summary_v1']
+                if 'battle_summary_v2' in st.session_state:
+                    del st.session_state['battle_summary_v2']
+                st.rerun()
 
 
 def page_stats():
-    st.title("📈 İleri Düzey Metin Madenciliği")
+    st.title("İleri Düzey Metin Madenciliği")
     
     # Check for any data
     has_single = st.session_state.single_video_data is not None
@@ -1560,8 +2017,8 @@ def page_stats():
     
     st.markdown(f"""
     <div style='margin-bottom: 24px;'>
-        <h2 style='font-size: 1.6rem; margin: 0; color: #F8FAFC;'>{title_text}</h2>
-        <p style='color: #64748B; font-size: 0.85rem; margin-top: 4px;'>Toplam {len(all_comments)} yorum analiz ediliyor</p>
+        <h2 style='font-size: 1.6rem; margin: 0; color: #1F2937;'>{title_text}</h2>
+        <p style='color: #6B7280; font-size: 0.85rem; margin-top: 4px;'>Toplam {len(all_comments)} yorum analiz ediliyor</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1573,31 +2030,43 @@ def page_stats():
     comment_lengths = [len(t) for t in texts]
     likes = [c.get('begeni', 0) for c in all_comments]
     
-    # === GENEL METRİKLER ===
+    # === GENEL METRİKLER - Light Mode Styled Cards ===
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 16px 0 12px 0;'>
-        <span style='background: #3B82F6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>📊</span>
-        <span style='font-size: 1.1rem; font-weight: 600; color: #F8FAFC;'>Genel Metrikler</span>
+        <span style='background: #4169E1; color: white; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.8rem;'>📊</span>
+        <span style='font-size: 1.1rem; font-weight: 600; color: #1F2937;'>Genel Metrikler</span>
     </div>
     """, unsafe_allow_html=True)
     
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Toplam Yorum", f"{len(all_comments):,}")
-    m2.metric("Toplam Beğeni", f"{sum(likes):,}")
-    m3.metric("Ort. Uzunluk", f"{np.mean(comment_lengths):.0f} char")
+    
+    def stat_box(label, value, icon, color):
+        return f"""
+        <div style='background: #FFFFFF; border-left: 4px solid {color}; padding: 16px 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #E5E7EB;'>
+            <div style='color: #6B7280; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;'>{icon} {label}</div>
+            <div style='color: #1F2937; font-size: 1.5rem; font-weight: 700; margin-top: 4px;'>{value}</div>
+        </div>
+        """
+    
+    with m1: st.markdown(stat_box("Toplam Yorum", f"{len(all_comments):,}", "💬", "#4169E1"), unsafe_allow_html=True)
+    with m2: st.markdown(stat_box("Toplam Beğeni", f"{sum(likes):,}", "❤️", "#DC2626"), unsafe_allow_html=True)
+    with m3: st.markdown(stat_box("Ort. Uzunluk", f"{np.mean(comment_lengths):.0f} char", "📏", "#059669"), unsafe_allow_html=True)
     if sentiment:
         stats = SentimentAnalyzer().get_summary_stats(sentiment)
-        m4.metric("Duygu Skoru", f"{stats['sentiment_score']:.2f}")
+        score = stats['sentiment_score']
+        s_color = "#059669" if score > 0 else "#DC2626" if score < 0 else "#6B7280"
+        s_emoji = "📈" if score > 0 else "📉" if score < 0 else "➖"
+        with m4: st.markdown(stat_box("Duygu Skoru", f"{s_emoji} {score:.2f}", "🎭", s_color), unsafe_allow_html=True)
     else:
-        m4.metric("Duygu Skoru", "N/A")
+        with m4: st.markdown(stat_box("Duygu Skoru", "N/A", "🎭", "#6B7280"), unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # ========== 1. Bİ-GRAM ANALİZİ ==========
+    # ========== 1. Bİ-GRAM ANALİZİ (Light Mode) ==========
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
-        <span style='background: linear-gradient(135deg, #EC4899, #F59E0B); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>1️⃣</span>
-        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #EC4899, #F59E0B); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Bi-Gram Analizi (İkili Kelime Öbekleri)</span>
+        <span style='background: linear-gradient(135deg, #4169E1, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>1️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; color: #1F2937;'>Bi-Gram Analizi (İkili Kelime Öbekleri)</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1621,8 +2090,9 @@ def page_stats():
                 bigrams = [b[0] for b in top_bigrams]
                 counts = [b[1] for b in top_bigrams]
                 
-                # Plasma gradient colors
-                colors = px.colors.sequential.Plasma[:len(bigrams)]
+                # Royal Blue gradient for Light Mode
+                blue_shades = ['#4169E1', '#5A7FE8', '#7395EF', '#8CABF6', '#A5C1FD', '#BED7FF']
+                colors = (blue_shades * 3)[:len(bigrams)]
                 
                 fig = go.Figure()
                 fig.add_trace(go.Bar(
@@ -1631,26 +2101,26 @@ def page_stats():
                     orientation='h',
                     marker=dict(
                         color=colors[::-1],
-                        line=dict(width=1, color='rgba(255,255,255,0.5)')
+                        line=dict(width=1, color='rgba(255,255,255,0.8)')
                     ),
                     text=[f" {c}" for c in counts[::-1]],
                     textposition='outside',
-                    textfont=dict(size=11, color='#E2E8F0'),
+                    textfont=dict(size=11, color='#333333'),
                     hovertemplate='<b>%{y}</b><br>Kullanım: %{x}<extra></extra>'
                 ))
                 
                 fig.update_layout(
                     xaxis_title="Kullanım Sayısı",
                     yaxis_title="",
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(color='#E2E8F0', size=12),
+                    paper_bgcolor='rgba(255,255,255,0)',
+                    plot_bgcolor='rgba(255,255,255,0)',
+                    font=dict(color='#333333', size=12),
                     height=420,
                     margin=dict(l=20, r=60, t=10, b=40),
-                    hoverlabel=dict(bgcolor="#1E293B", bordercolor="#EC4899")
+                    hoverlabel=dict(bgcolor="#FFFFFF", bordercolor="#4169E1", font_color="#333333")
                 )
-                fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
-                fig.update_yaxes(showgrid=False)
+                fig.update_xaxes(gridcolor='#EAEAEA', showgrid=True, zeroline=False, tickfont=dict(color='#666666'))
+                fig.update_yaxes(showgrid=False, tickfont=dict(color='#333333'))
                 
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -1662,11 +2132,11 @@ def page_stats():
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # ========== 2. ETKİLEŞİM MATRİSİ (Bubble Chart) ==========
+    # ========== 2. ETKİLEŞİM MATRİSİ (Bubble Chart) - Light Mode ==========
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
-        <span style='background: linear-gradient(135deg, #10B981, #06B6D4); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>2️⃣</span>
-        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #10B981, #06B6D4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Etkileşim Matrisi (Duygu × Beğeni × Uzunluk)</span>
+        <span style='background: linear-gradient(135deg, #4169E1, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>2️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; color: #1F2937;'>Etkileşim Matrisi (Duygu × Beğeni × Uzunluk)</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1728,19 +2198,19 @@ def page_stats():
             fig.update_layout(
                 xaxis_title="Duygu Skoru (-1 = Negatif, +1 = Pozitif)",
                 yaxis_title="Beğeni Sayısı",
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#E2E8F0', size=12),
+                paper_bgcolor='rgba(255,255,255,0)',
+                plot_bgcolor='rgba(255,255,255,0)',
+                font=dict(color='#333333', size=12),
                 height=450,
                 legend=dict(
                     orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="center", x=0.5, bgcolor='rgba(0,0,0,0)'
+                    xanchor="center", x=0.5, bgcolor='rgba(255,255,255,0)', font=dict(color='#333333')
                 ),
                 margin=dict(l=20, r=20, t=50, b=40),
-                hoverlabel=dict(bgcolor="#1E293B", bordercolor="#64748B")
+                hoverlabel=dict(bgcolor="#FFFFFF", bordercolor="#4169E1", font_color="#333333")
             )
-            fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=True, zerolinecolor='rgba(255,255,255,0.2)')
-            fig.update_yaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
+            fig.update_xaxes(gridcolor='#EAEAEA', showgrid=True, zeroline=True, zerolinecolor='#CCCCCC', tickfont=dict(color='#666666'))
+            fig.update_yaxes(gridcolor='#EAEAEA', showgrid=True, zeroline=False, tickfont=dict(color='#666666'))
             
             st.plotly_chart(fig, use_container_width=True)
     else:
@@ -1748,11 +2218,11 @@ def page_stats():
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # ========== 3. EN ETKİLİ YORUMCULAR ==========
+    # ========== 3. EN ETKİLİ YORUMCULAR - Light Mode ==========
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
-        <span style='background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>3️⃣</span>
-        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6366F1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>En Etkili Yorumcular</span>
+        <span style='background: linear-gradient(135deg, #4169E1, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>3️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; color: #1F2937;'>En Etkili Yorumcular</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1779,13 +2249,18 @@ def page_stats():
         col_chart, col_table = st.columns([1.5, 1])
         
         with col_chart:
+            st.markdown("**Top 10 by Total Likes**")
             authors = [a[0][:15] + '...' if len(a[0]) > 15 else a[0] for a in sorted_authors]
             total_likes = [a[1]['total_likes'] for a in sorted_authors]
             
-            # Sunset gradient colors
-            colors = px.colors.sequential.Sunset[:len(authors)]
-            if len(colors) < len(authors):
-                colors = px.colors.sequential.Sunset * 2
+            # Blue gradient for Light Mode
+            blue_shades = ['#4169E1', '#5A7FE8', '#7395EF', '#8CABF6', '#A5C1FD', '#BED7FF', '#D6E8FF', '#EEF4FF', '#F8FBFF', '#FFFFFF']
+            colors = blue_shades[:len(authors)]
+            
+            # --- KRİTİK DÜZELTME: DİNAMİK YÜKSEKLİK ---
+            # Her çubuk için 40px + Eksenler için 30px pay bırakıyoruz.
+            # Böylece grafik asla gereğinden fazla yer kaplamıyor ve yukarı yapışıyor.
+            dynamic_height = (len(authors) * 40) + 30
             
             fig = go.Figure()
             fig.add_trace(go.Bar(
@@ -1793,61 +2268,91 @@ def page_stats():
                 x=total_likes[::-1],
                 orientation='h',
                 marker=dict(
-                    color=colors[:len(authors)][::-1],
-                    line=dict(width=1, color='rgba(255,255,255,0.5)')
+                    color=colors[::-1],
+                    line=dict(width=1, color='rgba(255,255,255,0.8)')
                 ),
                 text=[f" {l:,}" for l in total_likes[::-1]],
                 textposition='outside',
-                textfont=dict(size=11, color='#E2E8F0'),
-                hovertemplate='<b>%{y}</b><br>Toplam Beğeni: %{x:,}<extra></extra>'
+                textfont=dict(size=11, color='#333333'),
+                hovertemplate='<b>%{y}</b><br>Total Likes: %{x:,}<extra></extra>'
             ))
             
             fig.update_layout(
-                xaxis_title="Toplam Beğeni",
+                xaxis_title="Total Likes",
                 yaxis_title="",
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#E2E8F0', size=12),
-                height=380,
-                margin=dict(l=20, r=60, t=10, b=40),
-                hoverlabel=dict(bgcolor="#1E293B", bordercolor="#8B5CF6")
+                paper_bgcolor='rgba(255,255,255,0)',
+                plot_bgcolor='rgba(255,255,255,0)',
+                font=dict(color='#333333', size=12),
+                
+                # Sabit 350 yerine hesapladığımız boyutu veriyoruz
+                height=dynamic_height,
+                
+                # margin-top (t) değerini 0 yaptık, sol (l) boşluğu da kıstık
+                margin=dict(l=0, r=50, t=0, b=30),
+                
+                hoverlabel=dict(bgcolor="#FFFFFF", bordercolor="#4169E1", font_color="#333333"),
+                
+                # Barların kalınlığını ve aralığını ayarlayarak daha sıkı durmasını sağlıyoruz
+                bargap=0.2
             )
-            fig.update_xaxes(gridcolor='rgba(255,255,255,0.08)', showgrid=True, zeroline=False)
-            fig.update_yaxes(showgrid=False)
+            fig.update_xaxes(gridcolor='#EAEAEA', showgrid=True, zeroline=False, tickfont=dict(color='#666666'))
+            fig.update_yaxes(showgrid=False, tickfont=dict(color='#333333'))
             
-            st.plotly_chart(fig, use_container_width=True)
+            # use_container_width=True ile sütuna tam oturmasını sağlıyoruz
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         with col_table:
-            st.markdown("**📊 Detaylı Metrikler**")
+            st.markdown("**Most Popular Comments**")
             
-            # Top 5 with detailed metrics
-            for i, (author, stats) in enumerate(sorted_authors[:5], 1):
-                avg_likes = stats['total_likes'] / stats['comment_count'] if stats['comment_count'] > 0 else 0
-                avg_length = stats['total_length'] / stats['comment_count'] if stats['comment_count'] > 0 else 0
+            # Find the most liked comment for each top author
+            top_authors_list = [a[0] for a in sorted_authors[:5]]
+            
+            # Get best comments for top authors
+            for author_name in top_authors_list:
+                # Find all comments by this author
+                author_comments = [c for c in all_comments if c.get('yazar', '') == author_name]
                 
-                medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"#{i}"
-                
-                st.markdown(f"""
-                <div style='background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); 
-                            padding: 10px 12px; border-radius: 8px; margin-bottom: 8px;'>
-                    <div style='display: flex; justify-content: space-between; align-items: center;'>
-                        <span style='color: #C4B5FD; font-weight: 600;'>{medal} {author[:18]}</span>
-                        <span style='color: #A78BFA; font-size: 0.85rem;'>❤️ {stats['total_likes']:,}</span>
+                if author_comments:
+                    # Get the most liked comment
+                    best_comment = max(author_comments, key=lambda x: x.get('begeni', 0))
+                    comment_text = best_comment.get('metin', '')
+                    likes = best_comment.get('begeni', 0)
+                    
+                    # Clean and truncate comment text
+                    if isinstance(comment_text, str):
+                        comment_text = comment_text.replace('</div>', '').replace('<div>', '').strip()
+                        if len(comment_text) > 150:
+                            comment_text = comment_text[:147] + "..."
+                    
+                    # Truncate author name
+                    display_name = author_name[:20] + ("..." if len(author_name) > 20 else "")
+                    
+                    st.markdown(f"""
+                    <div style='background: #FFFFFF; border: 1px solid #E5E7EB; 
+                                padding: 14px 16px; border-radius: 10px; margin-bottom: 10px;
+                                box-shadow: 0 1px 4px rgba(0,0,0,0.04);'>
+                        <div style='color: #4169E1; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;'>
+                            @{display_name}
+                        </div>
+                        <div style='color: #4B5563; font-size: 0.85rem; font-style: italic; line-height: 1.6;'>
+                            "{comment_text}"
+                        </div>
+                        <div style='text-align: right; margin-top: 8px;'>
+                            <span style='background: #FEE2E2; color: #DC2626; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;'>
+                                ❤️ {likes:,}
+                            </span>
+                        </div>
                     </div>
-                    <div style='color: #94A3B8; font-size: 0.7rem; margin-top: 4px;'>
-                        {stats['comment_count']} yorum • Ort: {avg_likes:.1f} beğeni • {avg_length:.0f} char
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
     else:
         st.info("Yeterli yazar verisi yok.")
     
     st.markdown("<br>", unsafe_allow_html=True)
-    # ========== 4. SORU ANALİZİ (Donut Chart) ==========
+    # ========== 4. SORU ANALİZİ (Donut Chart) - Light Mode ==========
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
-        <span style='background: linear-gradient(135deg, #F59E0B, #EF4444); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>4️⃣</span>
-        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #F59E0B, #EF4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Soru Analizi</span>
+        <span style='background: linear-gradient(135deg, #4169E1, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>4️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; color: #1F2937;'>Soru Analizi</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1871,23 +2376,23 @@ def page_stats():
             values=[question_count, non_question_count],
             hole=0.6,
             marker=dict(
-                colors=['#F59E0B', '#3B82F6'],
-                line=dict(width=2, color='#0F172A')
+                colors=['#D97706', '#4169E1'],
+                line=dict(width=2, color='#FFFFFF')
             ),
             textinfo='percent+label',
             textposition='outside',
-            textfont=dict(size=13, color='#E2E8F0'),
+            textfont=dict(size=13, color='#333333'),
             hovertemplate='<b>%{label}</b><br>Sayı: %{value}<br>Oran: %{percent}<extra></extra>'
         ))
         
         fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(255,255,255,0)',
             showlegend=False,
             height=350,
             margin=dict(l=20, r=20, t=20, b=20),
             annotations=[dict(
                 text=f"<b>{question_count}</b><br><span style='font-size:12px'>Soru</span>",
-                x=0.5, y=0.5, font_size=24, font_color='#F59E0B', showarrow=False
+                x=0.5, y=0.5, font_size=24, font_color='#D97706', showarrow=False
             )]
         )
         
@@ -1897,41 +2402,43 @@ def page_stats():
         question_pct = (question_count / len(all_comments) * 100) if len(all_comments) > 0 else 0
         
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); 
-                    border: 1px solid rgba(245, 158, 11, 0.3); padding: 24px; border-radius: 12px; margin-top: 20px;'>
-            <div style='color: #94A3B8; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;'>Soru Oranı</div>
-            <div style='color: #FBBF24; font-size: 2.8rem; font-weight: 800; line-height: 1;'>{question_pct:.1f}%</div>
-            <div style='color: #64748B; font-size: 0.8rem; margin-top: 12px;'>
+        <div style='background: #FEF3C7; border: 1px solid rgba(217, 119, 6, 0.3); padding: 24px; border-radius: 12px; margin-top: 20px;'>
+            <div style='color: #6B7280; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;'>Soru Oranı</div>
+            <div style='color: #D97706; font-size: 2.8rem; font-weight: 800; line-height: 1;'>{question_pct:.1f}%</div>
+            <div style='color: #4B5563; font-size: 0.8rem; margin-top: 12px;'>
                 {question_count} soru / {len(all_comments)} yorum
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Insight
+        # Insight - Light Mode info box
         if question_pct > 30:
             insight = "⚠️ Kitle çok soru soruyor! Daha fazla açıklama veya FAQ gerekebilir."
-            insight_color = "#F59E0B"
+            insight_color = "#D97706"
+            box_bg = "#FEF3C7"
         elif question_pct > 15:
             insight = "💡 Orta düzeyde soru var. İçeriğiniz anlaşılır görünüyor."
-            insight_color = "#3B82F6"
+            insight_color = "#4169E1"
+            box_bg = "#E3F2FD"
         else:
             insight = "✅ Çok az soru var. İçeriğiniz açık ve net!"
-            insight_color = "#10B981"
+            insight_color = "#059669"
+            box_bg = "#D1FAE5"
         
         st.markdown(f"""
-        <div style='background: rgba(30, 41, 59, 0.5); border-left: 3px solid {insight_color}; 
-                    padding: 12px 16px; margin-top: 16px; border-radius: 6px;'>
-            <span style='color: #E2E8F0; font-size: 0.85rem;'>{insight}</span>
+        <div style='background: {box_bg}; border-left: 4px solid {insight_color}; 
+                    padding: 14px 18px; margin-top: 16px; border-radius: 8px;'>
+            <span style='color: #1F2937; font-size: 0.9rem;'>{insight}</span>
         </div>
         """, unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # ========== 5. ZAMANA BAĞLI DUYGU DEĞİŞİMİ ==========
+    # ========== 5. ZAMANA BAĞLI DUYGU DEĞİŞİMİ - Light Mode ==========
     st.markdown("""
     <div style='display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;'>
-        <span style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>5️⃣</span>
-        <span style='font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #3B82F6, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Zamana Bağlı Duygu Analizi</span>
+        <span style='background: linear-gradient(135deg, #4169E1, #6366F1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;'>5️⃣</span>
+        <span style='font-size: 1.3rem; font-weight: 700; color: #1F2937;'>Zamana Bağlı Duygu Analizi</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1946,25 +2453,28 @@ def page_stats():
                 fig = create_temporal_sentiment_chart(all_comments, sentiment)
                 st.plotly_chart(fig, use_container_width=True)
                 
-                # Insight based on trend
+                # Insight based on trend - Light Mode
                 pos_count = sum(1 for s in sentiment if hasattr(s, 'label') and s.label == 'positive')
                 neg_count = sum(1 for s in sentiment if hasattr(s, 'label') and s.label == 'negative')
                 total = len(sentiment)
                 
                 if pos_count > neg_count * 1.5:
                     insight = f"📈 Genel trend POZİTİF: {pos_count}/{total} ({pos_count/total*100:.0f}%) yorum olumlu."
-                    insight_color = "#10B981"
+                    insight_color = "#059669"
+                    box_bg = "#D1FAE5"
                 elif neg_count > pos_count * 1.5:
                     insight = f"📉 Genel trend NEGATİF: {neg_count}/{total} ({neg_count/total*100:.0f}%) yorum olumsuz."
-                    insight_color = "#EF4444"
+                    insight_color = "#DC2626"
+                    box_bg = "#FEE2E2"
                 else:
                     insight = f"↔️ Dengeli trend: Pozitif {pos_count} (%{pos_count/total*100:.0f}), Negatif {neg_count} (%{neg_count/total*100:.0f})"
-                    insight_color = "#3B82F6"
+                    insight_color = "#4169E1"
+                    box_bg = "#E3F2FD"
                 
                 st.markdown(f"""
-                <div style='background: rgba(30, 41, 59, 0.5); border-left: 3px solid {insight_color}; 
-                            padding: 12px 16px; margin-top: 16px; border-radius: 6px;'>
-                    <span style='color: #E2E8F0; font-size: 0.85rem;'>{insight}</span>
+                <div style='background: {box_bg}; border-left: 4px solid {insight_color}; 
+                            padding: 14px 18px; margin-top: 16px; border-radius: 8px;'>
+                    <span style='color: #1F2937; font-size: 0.9rem;'>{insight}</span>
                 </div>
                 """, unsafe_allow_html=True)
             else:

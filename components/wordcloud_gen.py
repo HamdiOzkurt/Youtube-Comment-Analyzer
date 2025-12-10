@@ -28,7 +28,7 @@ def generate_wordcloud(
     width: int = 800,
     height: int = 400,
     background_color: str = 'rgba(0,0,0,0)',
-    colormap: str = 'plasma',
+    colormap: str = 'viridis',  # Light Mode için daha zengin renkler
     max_words: int = 100,
     min_font_size: int = 10,
     max_font_size: int = 100
