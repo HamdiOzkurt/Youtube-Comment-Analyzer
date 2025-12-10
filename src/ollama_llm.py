@@ -179,6 +179,37 @@ Kısa ve öz yanıt ver. Sentiment analizi sonucuyla uyumlu bir özet yaz!"""
         except Exception as e:
             return f"Özetlenemedi: {e}"
 
+    def summarize_for_battle(self, comments: List[str], video_title: str) -> str:
+        """Battle Mode için özel formatlı özet"""
+        
+        comments_text = "\n".join([f"- {c[:200]}" for c in comments[:40]])
+        
+        prompt = f"""Sen bir raporlama motorusun. Sadece veri analizi yaparsın. ASLA sohbet etme ("Tabii", "İşte analiz" vb. yasak).
+        
+        VİDEO: {video_title}
+        
+        GÖREV: Yorumları analiz et ve tam olarak aşağıdaki formatta raporla:
+        
+        DUYGU DURUMU: (Tek kelime: Olumlu / Olumsuz / Nötr / Karışık)
+        
+        👍 BEĞENİLENLER:
+        - (En önemli 3 pozitif nokta - kısa maddeler)
+        
+        👎 ELEŞTİRİLER:
+        - (En önemli 3 negatif nokta - kısa maddeler)
+        
+        💡 SON KARAR: (Tek cümlelik net bir sonuç)
+        
+        YORUMLAR:
+        {comments_text}
+        
+        Sadece yukarıdaki şablonu doldur. Başka hiçbir şey yazma."""
+        
+        try:
+            return self._call_ollama(prompt, max_tokens=600)
+        except Exception as e:
+            return f"Özetlenemedi: {e}"
+
 
 # Test
 if __name__ == '__main__':

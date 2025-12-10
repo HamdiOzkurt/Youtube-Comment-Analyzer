@@ -1850,12 +1850,18 @@ def page_battle():
                     v1_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v1.get('yorumlar', [])[:30]]
                     v2_comments = [c.get('metin_duygu') or c.get('metin', '') for c in v2.get('yorumlar', [])[:30]]
                     
-                    # Get individual summaries and store in session state
-                    v1_summary_result = summarizer.summarize_comments(v1_comments, v1.get('baslik', 'Video 1'))
-                    v2_summary_result = summarizer.summarize_comments(v2_comments, v2.get('baslik', 'Video 2'))
+                    # Get individual summaries using BATTLE MODE specific summarizer
+                    v1_raw = summarizer.summarize_for_battle(v1_comments, v1.get('baslik', 'Video 1'))
+                    v2_raw = summarizer.summarize_for_battle(v2_comments, v2.get('baslik', 'Video 2'))
                     
-                    st.session_state[summary_key_v1] = v1_summary_result.summary if v1_summary_result.summary else "Summary not available."
-                    st.session_state[summary_key_v2] = v2_summary_result.summary if v2_summary_result.summary else "Summary not available."
+                    # Robust cleaning function
+                    def clean_ai_out(text):
+                        if not text: return "Summary not available."
+                        # Clean HTML tags and artifacts that might leak from Ollama
+                        return text.replace("</div>", "").replace("</p>", "").replace("<p>", "").replace("```", "").strip()
+                    
+                    st.session_state[summary_key_v1] = clean_ai_out(v1_raw)
+                    st.session_state[summary_key_v2] = clean_ai_out(v2_raw)
                     
                 except Exception as e:
                     st.warning(f"AI summary generation failed: {e}")
