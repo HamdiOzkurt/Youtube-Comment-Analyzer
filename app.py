@@ -646,15 +646,59 @@ def inject_theme():
         /* HIDE DEFAULT ELEMENTS */
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
-        header {{visibility: hidden;}}
         
+        /* Header - transparent but visible for sidebar toggle */
         [data-testid="stHeader"] {{
-            display: none !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }}
         
-        /* SIDEBAR TOGGLE - Keep visible */
-        [data-testid="collapsedControl"] {{
-            display: flex !important;
+        /* Hide Deploy button and Toolbar */
+        [data-testid="stDeployButton"],
+        .stDeployButton,
+        [data-testid="stToolbar"],
+        .stToolbar,
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        .stStatusWidget {{
+            display: none !important;
+            visibility: hidden !important;
+        }}
+        
+        /* SIDEBAR - ALWAYS VISIBLE, NO TOGGLE */
+        /* Hide all sidebar toggle buttons - sidebar will always be open */
+        [data-testid="collapsedControl"],
+        button[kind="header"],
+        [data-testid="baseButton-header"],
+        section[data-testid="stSidebar"] button[kind="header"],
+        [data-testid="stSidebar"] > div > button {{
+            display: none !important;
+            visibility: hidden !important;
+        }}
+        
+        /* Ensure sidebar is ALWAYS visible - AGGRESSIVE */
+        [data-testid="stSidebar"],
+        section[data-testid="stSidebar"],
+        .css-1d391kg {{
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+            margin-left: 0 !important;
+            left: 0 !important;
+            width: 21rem !important;
+            min-width: 21rem !important;
+            max-width: 21rem !important;
+            position: relative !important;
+        }}
+        
+        /* Force header visibility for sidebar toggle */
+        [data-testid="stHeader"] {{
+            display: block !important;
+            visibility: visible !important;
+            height: auto !important;
+            min-height: 3rem !important;
         }}
         
         /* TIP BOX - Light Mode */
